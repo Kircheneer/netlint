@@ -16,7 +16,7 @@ flake8 = "^3.9.0"
 typer-cli = {version = "^0.0.11", extras = ["docs"]}
 
 [tool.poetry.scripts]
-netlint = 'netlint.main:app'
+netlint = 'netlint.main:run'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

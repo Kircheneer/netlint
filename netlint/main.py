@@ -1,4 +1,5 @@
 import json
+import sys
 import typing
 from enum import Enum
 from pathlib import Path
@@ -33,13 +34,10 @@ def list_() -> None:
         typer.echo(check)
 
 
-@app.callback(invoke_without_command=True)
-def callback(
-    ctx: typer.Context,
-    path: Path = typer.Option(
-        "config.conf",
-        "-i",
-        "--input",
+@app.command(name="lint")
+def lint(
+    path: Path = typer.Argument(
+        default=None,
         exists=True,
         file_okay=True,
         dir_okay=True,
@@ -53,7 +51,7 @@ def callback(
     prefix: str = typer.Option(
         "-> ", help="Prefix for configuration lines output to the CLI."
     ),
-    output: typing.Optional[Path] = typer.Option(None, "-o", "--output"),
+    output: typing.Optional[Path] = typer.Option(None, "-o", "--output", help="Optional output file."),
     format_: OutputFormat = typer.Option(OutputFormat.normal, "--format"),
     plain: bool = typer.Option(
         False, help="Un-styled CLI output (implicit --no-color)."
@@ -63,9 +61,6 @@ def callback(
     """Lint network device configuration files."""
     if plain:
         color = False
-
-    if ctx.invoked_subcommand is not None:
-        return
 
     if path.is_file():
         processed_config = check_config(color, format_, path, plain, prefix)
@@ -125,5 +120,15 @@ def check_config(
     return return_value
 
 
+def run() -> typing.Any:
+    """Wrapper around app() to default to the 'lint' command."""
+    try:
+        if sys.argv[1] not in [command.name for command in app.registered_commands]:
+            sys.argv.insert(1, "lint")
+    except IndexError:
+        pass
+    return app()
+
+
 if __name__ == "__main__":
-    app()
+    run()
