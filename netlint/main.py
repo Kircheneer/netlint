@@ -10,6 +10,8 @@ from ciscoconfparse import CiscoConfParse
 from netlint.checks import checker
 from netlint.utils import smart_open
 
+HELP_FLAGS = ["-h", "--help"]
+
 app = typer.Typer()
 
 
@@ -25,6 +27,16 @@ class OutputFormat(str, Enum):
 
 JSONOutputDict = typing.Dict[str, JSONOutput]
 ConfigCheckResult = typing.Union[str, JSONOutputDict]
+
+
+@app.callback(
+    context_settings={"help_option_names": HELP_FLAGS}
+)
+def callback() -> None:
+    """Lint network device configuration files.
+
+    'netlint lint' is automatically invoked when no subcommand is passed in.
+    """
 
 
 @app.command(name="list")
@@ -121,9 +133,11 @@ def check_config(
 
 
 def run() -> typing.Any:
-    """Wrapper around app() to default to the 'lint' command."""
+    """Wrapper around app() to default to the 'lint' command.
+
+    Note: This makes it impossible to use any flags to the base command. That might cause problems later."""
     try:
-        if sys.argv[1] not in [command.name for command in app.registered_commands]:
+        if sys.argv[1] not in [command.name for command in app.registered_commands] and sys.argv[1] not in HELP_FLAGS:
             sys.argv.insert(1, "lint")
     except IndexError:
         pass
