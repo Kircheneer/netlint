@@ -1,78 +1,69 @@
 import json
-import sys
 import typing
-from enum import Enum
 from pathlib import Path
 
-import typer
+import click
 from ciscoconfparse import CiscoConfParse
+from click_default_group import DefaultGroup  # type: ignore
 
 from netlint.checks import checker
+from netlint.types import JSONOutputDict, ConfigCheckResult
 from netlint.utils import smart_open
 
-HELP_FLAGS = ["-h", "--help"]
 
-app = typer.Typer()
-
-
-class JSONOutput(typing.TypedDict):
-    text: str
-    lines: typing.List[str]
+@click.group(cls=DefaultGroup, default="lint", default_if_no_args=True)
+def cli() -> None:
+    pass
 
 
-class OutputFormat(str, Enum):
-    json = "json"
-    normal = "normal"
-
-
-JSONOutputDict = typing.Dict[str, JSONOutput]
-ConfigCheckResult = typing.Union[str, JSONOutputDict]
-
-
-@app.callback(
-    context_settings={"help_option_names": HELP_FLAGS}
+@cli.command()
+@click.argument(
+    "path",
+    type=click.Path(
+        exists=True, file_okay=True, dir_okay=True, readable=True, resolve_path=True
+    ),
 )
-def callback() -> None:
-    """Lint network device configuration files.
-
-    'netlint lint' is automatically invoked when no subcommand is passed in.
-    """
-
-
-@app.command(name="list")
-def list_() -> None:
-    """List available checks."""
-    for check in checker.checks:
-        typer.echo(check)
-
-
-@app.command(name="lint")
+@click.option(
+    "--glob", default="*.conf", help="Glob pattern to match files in the path with."
+)
+@click.option(
+    "--prefix", default="-> ", help="Prefix for configuration lines output to the CLI."
+)
+@click.option(
+    "-o", "--output", type=click.Path(writable=True), help="Optional output file."
+)
+@click.option(
+    "--format",
+    "format_",
+    default="normal",
+    type=click.Choice(["json", "normal"], case_sensitive=False),
+)
+@click.option(
+    "--plain",
+    default=False,
+    type=bool,
+    help="Un-styled CLI output (implicit --no-color).",
+)
+@click.option("--color", default=True, help="Use color in CLI output.")
+@click.pass_context
 def lint(
-    path: Path = typer.Argument(
-        default=None,
-        exists=True,
-        file_okay=True,
-        dir_okay=True,
-        readable=True,
-        resolve_path=True,
-        help="Path to configuration file or directory containing files.",
-    ),
-    glob: str = typer.Option(
-        "*.conf", "--glob", help="Glob pattern to match files in the path with."
-    ),
-    prefix: str = typer.Option(
-        "-> ", help="Prefix for configuration lines output to the CLI."
-    ),
-    output: typing.Optional[Path] = typer.Option(None, "-o", "--output", help="Optional output file."),
-    format_: OutputFormat = typer.Option(OutputFormat.normal, "--format"),
-    plain: bool = typer.Option(
-        False, help="Un-styled CLI output (implicit --no-color)."
-    ),
-    color: bool = typer.Option(default=True, help="Use color in CLI output."),
+    ctx: click.Context,
+    path: Path,
+    glob: str,
+    prefix: str,
+    output: Path,
+    format_: str,
+    plain: bool,
+    color: bool,
 ) -> None:
     """Lint network device configuration files."""
     if plain:
         color = False
+
+    if ctx.invoked_subcommand:
+        return
+
+    path = Path(path)
 
     if path.is_file():
         processed_config = check_config(color, format_, path, plain, prefix)
@@ -87,26 +78,31 @@ def lint(
                 color, format_, item, plain, prefix
             )
         with smart_open(output) as f:
-            if format_ == OutputFormat.normal:
+            if format_ == "normal":
                 for key, value in processed_configs.items():
                     assert isinstance(value, str)
                     f.write(
-                        typer.style(
+                        click.style(
                             f"{'=' * 10} {key} {'=' * 10}\n", bold=True and plain
                         )
                     )
                     f.write(value)
-            elif format_ == OutputFormat.json:
+            elif format_ == "json":
                 json.dump(processed_configs, f)
 
 
+@cli.command(name="list")
+def list_() -> None:
+    """List configuration checks."""
+    for command in checker.checks:
+        click.echo(command)
+
+
 def check_config(
-    color: bool, format_: OutputFormat, path: Path, plain: bool, prefix: str
+    color: bool, format_: str, path: Path, plain: bool, prefix: str
 ) -> ConfigCheckResult:
     """Run checks on config at a given path."""
-    return_value: typing.Union[str, JSONOutputDict] = (
-        "" if format_ == OutputFormat.normal else {}
-    )
+    return_value: typing.Union[str, JSONOutputDict] = "" if format_ == "normal" else {}
 
     with open(path, "r") as f:
         configuration = CiscoConfParse(f.readlines())
@@ -115,15 +111,15 @@ def check_config(
     for check, result in checker.check_results.items():
         if not result:
             continue
-        if format_ == format_.normal:
+        if format_ == "normal":
             assert isinstance(return_value, str)
-            return_value += typer.style(check, bold=not plain)
+            return_value += click.style(check, bold=not plain)
             return_value += " " + result.text + "\n"
-            return_value += typer.style(
+            return_value += click.style(
                 prefix + prefix.join(result.lines),
-                fg=typer.colors.BRIGHT_RED if color else None,
+                fg="red" if color else None,
             )
-        elif format_ == format_.json:
+        elif format_ == "json":
             assert isinstance(return_value, dict)
             return_value[check] = {
                 "text": result.text,
@@ -132,17 +128,5 @@ def check_config(
     return return_value
 
 
-def run() -> typing.Any:
-    """Wrapper around app() to default to the 'lint' command.
-
-    Note: This makes it impossible to use any flags to the base command. That might cause problems later."""
-    try:
-        if sys.argv[1] not in [command.name for command in app.registered_commands] and sys.argv[1] not in HELP_FLAGS:
-            sys.argv.insert(1, "lint")
-    except IndexError:
-        pass
-    return app()
-
-
 if __name__ == "__main__":
-    run()
+    cli()

@@ -1,4 +1,5 @@
-from netlint.main import app
+from netlint.main import cli
+
 
 if __name__ == "__main__":
-    app(prog_name="netlint")
+    cli()
