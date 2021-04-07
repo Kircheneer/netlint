@@ -12,8 +12,24 @@ from netlint.utils import smart_open
 
 
 @click.group(cls=DefaultGroup, default="lint", default_if_no_args=True)
-def cli() -> None:
-    pass
+@click.option(
+    "-p",
+    "--plain",
+    is_flag=True,
+    default=False,
+    type=bool,
+    help="Un-styled CLI output (implicit --no-color).",
+)
+@click.option("--color", default=True, help="Use color in CLI output.")
+@click.pass_context
+def cli(ctx: click.Context, plain: bool, color: bool) -> None:
+    """Lint network device configuration files."""
+    ctx.ensure_object(dict)
+    ctx.obj["plain"] = plain
+    if plain:
+        ctx.obj["color"] = False
+    else:
+        ctx.obj["color"] = color
 
 
 @cli.command()
@@ -38,44 +54,35 @@ def cli() -> None:
     default="normal",
     type=click.Choice(["json", "normal"], case_sensitive=False),
 )
-@click.option(
-    "--plain",
-    default=False,
-    type=bool,
-    help="Un-styled CLI output (implicit --no-color).",
-)
-@click.option("--color", default=True, help="Use color in CLI output.")
 @click.pass_context
 def lint(
     ctx: click.Context,
-    path: Path,
+    path: str,
     glob: str,
     prefix: str,
-    output: Path,
+    output: str,
     format_: str,
-    plain: bool,
-    color: bool,
 ) -> None:
     """Lint network device configuration files."""
-    if plain:
-        color = False
 
     if ctx.invoked_subcommand:
         return
 
-    path = Path(path)
+    input_path = Path(path)
 
-    if path.is_file():
-        processed_config = check_config(color, format_, path, plain, prefix)
+    if input_path.is_file():
+        processed_config = check_config(
+            ctx.obj["color"], format_, input_path, ctx.obj["plain"], prefix
+        )
         assert isinstance(processed_config, str)
         with smart_open(output) as f:
             f.write(processed_config)
-    elif path.is_dir():
-        path_items = path.glob(glob)
+    elif input_path.is_dir():
+        path_items = input_path.glob(glob)
         processed_configs: typing.Dict[str, typing.Union[str, JSONOutputDict]] = {}
         for item in path_items:
             processed_configs[str(item)] = check_config(
-                color, format_, item, plain, prefix
+                ctx.obj["color"], format_, item, ctx.obj["plain"], prefix
             )
         with smart_open(output) as f:
             if format_ == "normal":
@@ -83,7 +90,8 @@ def lint(
                     assert isinstance(value, str)
                     f.write(
                         click.style(
-                            f"{'=' * 10} {key} {'=' * 10}\n", bold=True and plain
+                            f"{'=' * 10} {key} {'=' * 10}\n",
+                            bold=True and ctx.obj["plain"],
                         )
                     )
                     f.write(value)
@@ -129,4 +137,4 @@ def check_config(
 
 
 if __name__ == "__main__":
-    cli()
+    cli(obj={})

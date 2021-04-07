@@ -1,12 +1,11 @@
 import contextlib
 import sys
 import typing
-from pathlib import Path
 
 
 @contextlib.contextmanager
 def smart_open(
-    filename: typing.Optional[Path] = None,
+    filename: typing.Optional[str] = None,
 ) -> typing.Generator[typing.TextIO, None, None]:
     """Return a file handler for filename or sys.stdout if filename is None."""
     if filename and filename != "-":
