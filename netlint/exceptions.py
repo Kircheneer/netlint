@@ -1,2 +1,0 @@
-class IncompleteConfigException(Exception):
-    pass

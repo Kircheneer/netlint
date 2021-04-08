@@ -5,7 +5,6 @@ import typing
 from ciscoconfparse import CiscoConfParse
 
 from netlint.checks.checker import CheckResult
-from netlint.exceptions import IncompleteConfigException
 
 
 def check_plaintext_passwords(config: CiscoConfParse) -> typing.Optional[CheckResult]:

@@ -1,8 +1,13 @@
-from netlint.checks import cisco_ios
-from netlint.checks.checker import Checker
+from netlint.checks import cisco_ios, cisco_nxos
+from netlint.checks.checker import Checker, CheckFunctionTuple
 
 checker = Checker()
 
-checker.register("A101", cisco_ios.check_console_password)
-checker.register("A102", cisco_ios.check_ip_http_server)
-checker.register("A103", cisco_ios.check_plaintext_passwords)
+# IOS
+checker.register(CheckFunctionTuple(name="A101", function=cisco_ios.check_console_password), apply_to=["IOS"])
+checker.register(CheckFunctionTuple(name="A102", function=cisco_ios.check_ip_http_server), apply_to=["IOS"])
+checker.register(CheckFunctionTuple(name="A103", function=cisco_ios.check_plaintext_passwords), apply_to=["IOS"])
+
+# NXOS
+checker.register(CheckFunctionTuple(name="B101", function=cisco_nxos.check_telnet_enabled), apply_to=["NXOS"])
+checker.register(CheckFunctionTuple(name="B102", function=cisco_nxos.check_bgp_enabled_and_used), apply_to=["NXOS"])
