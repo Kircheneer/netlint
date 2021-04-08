@@ -8,6 +8,14 @@ Linters have long since been a standard way of assessing code quality
 in the software development world. This project aims to take that idea
 and apply it to the world of network device configuration files.
 
+Potential uses of this tool are
+
+- Linting network device configurations generated in
+  CI/CD automation pipelines
+- Assistance when building out new configurations for
+  both traditional and automated deployment
+- ...
+
 ## Example usage
 
 Below is an example of how to use this based on one of the faulty test

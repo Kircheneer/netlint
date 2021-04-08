@@ -18,6 +18,7 @@ Sphinx = {version = "^3.5.3", extras = ["docs"]}
 sphinx-rtd-theme = {version = "^0.5.2", extras = ["docs"]}
 pytest = "^6.2.3"
 coverage = "^5.5"
+m2r2 = {version = "^0.2.7", extras = ["docs"]}
 
 [tool.poetry.scripts]
 netlint = 'netlint.main:cli'
