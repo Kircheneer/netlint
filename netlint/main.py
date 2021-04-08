@@ -3,7 +3,6 @@ import typing
 from pathlib import Path
 
 import click
-from ciscoconfparse import CiscoConfParse
 from click_default_group import DefaultGroup  # type: ignore
 
 from netlint.checks import checker
@@ -52,7 +51,13 @@ def cli(ctx: click.Context, plain: bool, color: bool) -> None:
     "--format",
     "format_",
     default="normal",
-    type=click.Choice(["json", "normal"], case_sensitive=False),
+    type=click.Choice(["json", "normal"]),
+    help="The format of the output data.",
+)
+@click.option(
+    "--nos",
+    type=click.Choice(["cisco_ios", "cisco_nxos"]),
+    help="The NOS the configuration(s) is/are for.",
 )
 @click.pass_context
 def lint(
@@ -62,6 +67,7 @@ def lint(
     prefix: str,
     output: str,
     format_: str,
+    nos: str,
 ) -> None:
     """Lint network device configuration files."""
 
@@ -72,7 +78,7 @@ def lint(
 
     if input_path.is_file():
         processed_config = check_config(
-            ctx.obj["color"], format_, input_path, ctx.obj["plain"], prefix
+            ctx.obj["color"], format_, input_path, ctx.obj["plain"], prefix, nos
         )
         assert isinstance(processed_config, str)
         with smart_open(output) as f:
@@ -82,7 +88,7 @@ def lint(
         processed_configs: typing.Dict[str, typing.Union[str, JSONOutputDict]] = {}
         for item in path_items:
             processed_configs[str(item)] = check_config(
-                ctx.obj["color"], format_, item, ctx.obj["plain"], prefix
+                ctx.obj["color"], format_, item, ctx.obj["plain"], prefix, nos
             )
         with smart_open(output) as f:
             if format_ == "normal":
@@ -107,14 +113,14 @@ def list_() -> None:
 
 
 def check_config(
-    color: bool, format_: str, path: Path, plain: bool, prefix: str
+    color: bool, format_: str, path: Path, plain: bool, prefix: str, nos: str
 ) -> ConfigCheckResult:
     """Run checks on config at a given path."""
     return_value: typing.Union[str, JSONOutputDict] = "" if format_ == "normal" else {}
 
     with open(path, "r") as f:
-        configuration = CiscoConfParse(f.readlines())
-    checker.run_checks(configuration)
+        configuration = f.readlines()
+    checker.run_checks(configuration, nos)
 
     for check, result in checker.check_results.items():
         if not result:

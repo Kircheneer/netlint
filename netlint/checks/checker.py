@@ -1,14 +1,12 @@
 import typing
 
-from ciscoconfparse import CiscoConfParse
-
 
 class CheckResult(typing.NamedTuple):
     text: str
     lines: typing.List[str]
 
 
-CheckFunction = typing.Callable[[CiscoConfParse], typing.Optional[CheckResult]]
+CheckFunction = typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]
 
 
 class CheckFunctionTuple(typing.NamedTuple):
@@ -21,7 +19,7 @@ class Checker:
 
     def __init__(self) -> None:
         # Map NOSes to applicable checks
-        self.checks: typing.Dict[str, CheckFunctionTuple] = {}
+        self.checks: typing.Dict[str, typing.List[CheckFunctionTuple]] = {}
 
         # Map check name to check result (NOS-agnostic)
         self.check_results: typing.Dict[str, typing.Optional[CheckResult]] = {}
@@ -35,14 +33,18 @@ class Checker:
         :return: None.
         """
         for nos in apply_to:
-            self.checks[nos] = check
+            if nos in self.checks:
+                self.checks[nos].append(check)
+            else:
+                self.checks[nos] = [check]
 
-    def run_checks(self, configuration: CiscoConfParse) -> bool:
+    def run_checks(self, configuration: typing.List[str], nos: str) -> bool:
         """
         Run all the registered checks on the configuration.
         :param configuration: The configuration to check.
+        :param nos: The NOS the configuration is for.
         :return: True if all checks succeed, False otherwise.
         """
-        for name, check in self.checks.items():
-            self.check_results[name] = check.function(configuration)
+        for check in self.checks[nos]:
+            self.check_results[check.name] = check.function(configuration)
         return not any(self.check_results.values())
