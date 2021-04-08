@@ -106,10 +106,13 @@ def lint(
 
 
 @cli.command(name="list")
-def list_() -> None:
+@click.pass_context
+def list_(ctx: click.Context) -> None:
     """List configuration checks."""
-    for command in checker.checks:
-        click.echo(command)
+    for nos, checks in checker.checks.items():
+        click.secho(f"{'=' * 10} {nos} {'=' * 10}", bold=not ctx.obj["plain"])
+        for check in checks:
+            click.secho(check.name)
 
 
 def check_config(
