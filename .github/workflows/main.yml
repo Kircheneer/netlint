@@ -63,4 +63,4 @@ jobs:
       - name: Make docs
         run: |
           cd docs
-          poetry run make html
+          $HOME/.poetry/bin/poetry run make html
