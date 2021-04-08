@@ -2,6 +2,8 @@
 
 # Netlint
 
+![Build workflog](https://github.com/Kircheneer/netlint/actions/workflows/main.yml/badge.svg)
+
 Performs static analysis on network device configuration files.
 
 Linters have long since been a standard way of assessing code quality
