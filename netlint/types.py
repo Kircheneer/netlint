@@ -1,7 +1,9 @@
 import typing
 
+import typing_extensions
 
-class JSONOutput(typing.TypedDict):
+
+class JSONOutput(typing_extensions.TypedDict):
     text: str
     lines: typing.List[str]
 
