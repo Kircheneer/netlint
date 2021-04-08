@@ -1,6 +1,7 @@
 # Python
 .mypy_cache/
 __pycache__/
+.coverage
 
 # Editors
 .idea/

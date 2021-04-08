@@ -1,3 +1,5 @@
+"""Checks for the Cisco IOS NOS."""
+
 import typing
 
 from ciscoconfparse import CiscoConfParse
@@ -30,7 +32,7 @@ def check_console_password(config: CiscoConfParse) -> typing.Optional[CheckResul
     """Check for authentication on the console line."""
     line_con_config = config.find_all_children("^line con 0")
     if len(line_con_config) == 0:
-        raise IncompleteConfigException("No 'line con 0' present in the configuration")
+        return None  # TODO: Log this?
 
     login = False
     password = False
