@@ -21,20 +21,20 @@ jobs:
       - name: Install dependencies
         run: |
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-          poetry install
+          $HOME/.poetry/bin/poetry install
 
       - name: Run black
         run: |
-          black --check .
+          $HOME/.poetry/bin/poetry run black --check .
 
       - name: Run linter
         run: |
-          flake8
+          $HOME/.poetry/bin/poetry run flake8
 
       - name: Run type checker
         run: |
-          mypy -p netlint
+          $HOME/.poetry/bin/poetry run mypy -p netlint
 
       - name: Run Tests
         run: |
-          coverage run -m pytest
+          $HOME/.poetry/bin/poetry run coverage run -m pytest
