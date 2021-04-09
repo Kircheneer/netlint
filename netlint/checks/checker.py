@@ -39,10 +39,14 @@ class Checker:
             function: typing.Callable[..., RT],
         ) -> typing.Callable[..., RT]:
             # Extend the docstring to include the decorator metadata
+            heading = f"**{name}**\n\n"
+            function.__doc__ = heading + function.__doc__
+            function.__doc__ += "\n\n"
+            function.__doc__ += "Applies to:"
             function.__doc__ += "\n" * 2
-            function.__doc__ += "Metadata:\n"
-            function.__doc__ += f"Check {name}, applies to:\n"
-            function.__doc__ += "\n  - ".join(apply_to)
+            for nos in apply_to:
+                function.__doc__ += f"* {nos}"
+            function.__doc__ += "\n"
 
             # Set an attribute on the function in order to indicate its status as a check
             # to the testing suite.

@@ -52,3 +52,6 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 source_suffix = [".rst", ".md"]
+
+# Sort autodoc members by source to keep the numbering correct.
+autodoc_member_order = 'bysource'
