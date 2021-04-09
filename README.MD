@@ -1,8 +1,9 @@
-**Note: Still in active development - don't use this**
+**Note: Still in active development and potentially subject to major changes - keep this in mind when using this.**
 
 # Netlint
 
 ![Build workflog](https://github.com/Kircheneer/netlint/actions/workflows/main.yml/badge.svg)
+[![Documentation Status](https://readthedocs.org/projects/netlint/badge/?version=latest)](https://netlint.readthedocs.io/en/latest/?badge=latest)
 
 Performs static analysis on network device configuration files.
 
@@ -16,7 +17,7 @@ Potential uses of this tool are
   CI/CD automation pipelines
 - Assistance when building out new configurations for
   both traditional and automated deployment
-- ...
+- Basic security auditing of configuration files
 
 ## Example usage
 
