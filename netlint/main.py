@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 from click_default_group import DefaultGroup  # type: ignore
 
-from netlint.checks import checker
+from netlint.checks import checker_instance
 from netlint.types import JSONOutputDict, ConfigCheckResult
 from netlint.utils import smart_open
 
@@ -109,7 +109,7 @@ def lint(
 @click.pass_context
 def list_(ctx: click.Context) -> None:
     """List configuration checks."""
-    for nos, checks in checker.checks.items():
+    for nos, checks in checker_instance.checks.items():
         click.secho(f"{'=' * 10} {nos} {'=' * 10}", bold=not ctx.obj["plain"])
         for check in checks:
             click.secho(check.name)
@@ -123,9 +123,9 @@ def check_config(
 
     with open(path, "r") as f:
         configuration = f.readlines()
-    checker.run_checks(configuration, nos)
+    checker_instance.run_checks(configuration, nos)
 
-    for check, result in checker.check_results.items():
+    for check, result in checker_instance.check_results.items():
         if not result:
             continue
         if format_ == "normal":

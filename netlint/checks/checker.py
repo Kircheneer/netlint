@@ -1,8 +1,6 @@
 import functools
 import typing
 
-RT = typing.TypeVar("RT")
-
 
 class CheckResult(typing.NamedTuple):
     text: str
@@ -29,18 +27,25 @@ class Checker:
 
     def register(
         self, apply_to: typing.List[str], name: str
-    ) -> typing.Callable[[typing.Callable[..., RT]], typing.Callable[..., RT]]:
+    ) -> typing.Callable[
+        [typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]],
+        typing.Callable[[typing.List[str]], typing.Optional[CheckResult]],
+    ]:
         """Decorator to register a check with the Checker instance.
 
         :param apply_to: List of NOSes to apply the check for.
         :param name: Name of the check.
         """
+
         def decorator(
-            function: typing.Callable[..., RT],
-        ) -> typing.Callable[..., RT]:
+            function: typing.Callable[[typing.List[str]], typing.Optional[CheckResult]],
+        ) -> typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]:
             # Extend the docstring to include the decorator metadata
             heading = f"**{name}**\n\n"
-            function.__doc__ = heading + function.__doc__
+            if function.__doc__:
+                function.__doc__ = heading + function.__doc__
+            else:
+                function.__doc__ = heading
             function.__doc__ += "\n\n"
             function.__doc__ += "Applies to:"
             function.__doc__ += "\n" * 2
@@ -48,22 +53,19 @@ class Checker:
                 function.__doc__ += f"* {nos}"
             function.__doc__ += "\n"
 
-            # Set an attribute on the function in order to indicate its status as a check
-            # to the testing suite.
-            function.test = True
-            check_function_tuple = CheckFunctionTuple(
-                function=function, name=name
-            )
+            # Set an attribute on the function in order to indicate its status as
+            # a check to the testing suite.
+            function.test = True  # type: ignore
+            check_function_tuple = CheckFunctionTuple(function=function, name=name)
             for nos in apply_to:
                 if nos in self.checks:
                     self.checks[nos].append(check_function_tuple)
                 else:
                     self.checks[nos] = [check_function_tuple]
 
-
             @functools.wraps(function)
-            def wrapper(*args: typing.Any, **kwargs: typing.Any) -> RT:
-                return function(*args, **kwargs)
+            def wrapper(config: typing.List[str]) -> typing.Optional[CheckResult]:
+                return function(config)
 
             return wrapper
 
