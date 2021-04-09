@@ -1,4 +1,7 @@
+import functools
 import typing
+
+RT = typing.TypeVar("RT")
 
 
 class CheckResult(typing.NamedTuple):
@@ -24,19 +27,40 @@ class Checker:
         # Map check name to check result (NOS-agnostic)
         self.check_results: typing.Dict[str, typing.Optional[CheckResult]] = {}
 
-    def register(self, check: CheckFunctionTuple, apply_to: typing.List[str]) -> None:
+    def register(
+        self, apply_to: typing.List[str], name: str
+    ) -> typing.Callable[[typing.Callable[..., RT]], typing.Callable[..., RT]]:
+        """Decorator to register a check with the Checker instance.
+
+        :param apply_to: List of NOSes to apply the check for.
+        :param name: Name of the check.
         """
-        Register a check in the checker instance.
-        :param name: The name of the check (like A101)
-        :param check: The function doing the actual checking.
-        :param apply_to: List of NOSes to apply this check to.
-        :return: None.
-        """
-        for nos in apply_to:
-            if nos in self.checks:
-                self.checks[nos].append(check)
-            else:
-                self.checks[nos] = [check]
+        def decorator(
+            function: typing.Callable[..., RT],
+        ) -> typing.Callable[..., RT]:
+            # Extend the docstring to include the decorator metadata
+            function.__doc__ += f"Check {name}, applies to {' ,'.join(apply_to)}"
+
+            # Set an attribute on the function in order to indicate its status as a check
+            # to the testing suite.
+            function.test = True
+            check_function_tuple = CheckFunctionTuple(
+                function=function, name=name
+            )
+            for nos in apply_to:
+                if nos in self.checks:
+                    self.checks[nos].append(check_function_tuple)
+                else:
+                    self.checks[nos] = [check_function_tuple]
+
+
+            @functools.wraps(function)
+            def wrapper(*args: typing.Any, **kwargs: typing.Any) -> RT:
+                return function(*args, **kwargs)
+
+            return wrapper
+
+        return decorator
 
     def run_checks(self, configuration: typing.List[str], nos: str) -> bool:
         """
