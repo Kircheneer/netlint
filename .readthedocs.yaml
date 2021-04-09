@@ -6,5 +6,6 @@ sphinx:
 
 python:
   version: 3.8
+  path: .
   extra_requirements:
     - docs
