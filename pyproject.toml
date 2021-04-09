@@ -9,6 +9,9 @@ python = "^3.6"
 ciscoconfparse = "^1.5.30"
 click = "^7.1.2"
 click-default-group = "^1.2.2"
+Sphinx = { version = "^3.5.3", optional = true }
+sphinx-rtd-theme = { version = "^0.5.2", optional = true }
+m2r2 = {version = "^0.2.7", optional = true }
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.812"
