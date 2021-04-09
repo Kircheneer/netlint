@@ -20,6 +20,11 @@ pytest = "^6.2.3"
 coverage = "^5.5"
 m2r2 = {version = "^0.2.7", extras = ["docs"]}
 
+[tool.poetry.extras]
+# The following section is required to install docs dependencies
+# until RTD fully supports poetry: https://github.com/rtfd/readthedocs.org/issues/4912
+docs = ["sphinx", "sphinx_rtd_theme", "m2r2"]
+
 [tool.poetry.scripts]
 netlint = 'netlint.main:cli'
 
