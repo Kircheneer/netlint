@@ -1,4 +1,4 @@
-Cisco IOS
+Cisco NXOS
 =========
 
 .. automodule:: netlint.checks.cisco_nxos
