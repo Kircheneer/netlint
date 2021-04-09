@@ -44,8 +44,6 @@ class Checker:
             function.__doc__ += f"Check {name}, applies to:\n"
             function.__doc__ += "\n  - ".join(apply_to)
 
-            raise Exception(function.__doc__)
-
             # Set an attribute on the function in order to indicate its status as a check
             # to the testing suite.
             function.test = True
