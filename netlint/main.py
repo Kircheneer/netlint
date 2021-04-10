@@ -19,7 +19,7 @@ from tests.utils import style
     default=False,
     type=bool,
     help="Un-styled CLI output.",
-    envvar="NO_COLOR"
+    envvar="NO_COLOR",
 )
 @click.pass_context
 def cli(ctx: click.Context, plain: bool) -> None:
@@ -119,9 +119,7 @@ def lint(
 def list_(ctx: click.Context) -> None:
     """List configuration checks."""
     for nos, checks in checker_instance.checks.items():
-        click.secho(
-            style(f"{'=' * 10} {nos} {'=' * 10}", ctx.obj["plain"], bold=True)
-        )
+        click.secho(style(f"{'=' * 10} {nos} {'=' * 10}", ctx.obj["plain"], bold=True))
         for check in checks:
             click.secho(check.name)
 

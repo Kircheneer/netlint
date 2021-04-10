@@ -37,7 +37,8 @@ def test_lint_basic(plain: bool):
     )
 
     # Assert the result did not error
-    assert not result.exception, f"netlint {' '.join(commands)} produced: {result.stdout}"
+    assert not \
+        result.exception, f"netlint {' '.join(commands)} produced: {result.stdout}"
 
     # Check for ANSI escape codes in the output if --plain is set
     if plain:
