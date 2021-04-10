@@ -8,6 +8,7 @@ from click_default_group import DefaultGroup  # type: ignore
 from netlint.checks import checker_instance
 from netlint.types import JSONOutputDict, ConfigCheckResult
 from netlint.utils import smart_open
+from tests.utils import style
 
 
 @click.group(cls=DefaultGroup, default="lint", default_if_no_args=True)
@@ -17,18 +18,14 @@ from netlint.utils import smart_open
     is_flag=True,
     default=False,
     type=bool,
-    help="Un-styled CLI output (implicit --no-color).",
+    help="Un-styled CLI output.",
+    envvar="NO_COLOR"
 )
-@click.option("--color", default=True, help="Use color in CLI output.")
 @click.pass_context
-def cli(ctx: click.Context, plain: bool, color: bool) -> None:
+def cli(ctx: click.Context, plain: bool) -> None:
     """Lint network device configuration files."""
     ctx.ensure_object(dict)
     ctx.obj["plain"] = plain
-    if plain:
-        ctx.obj["color"] = False
-    else:
-        ctx.obj["color"] = color
 
 
 @cli.command()
@@ -89,7 +86,7 @@ def lint(
 
     if input_path.is_file():
         processed_config = check_config(
-            ctx.obj["color"], format_, input_path, ctx.obj["plain"], prefix, nos
+            format_, input_path, ctx.obj["plain"], prefix, nos
         )
         assert isinstance(processed_config, str)
         with smart_open(output) as f:
@@ -99,16 +96,17 @@ def lint(
         processed_configs: typing.Dict[str, typing.Union[str, JSONOutputDict]] = {}
         for item in path_items:
             processed_configs[str(item)] = check_config(
-                ctx.obj["color"], format_, item, ctx.obj["plain"], prefix, nos
+                format_, item, ctx.obj["plain"], prefix, nos
             )
         with smart_open(output) as f:
             if format_ == "normal":
                 for key, value in processed_configs.items():
                     assert isinstance(value, str)
                     f.write(
-                        click.style(
+                        style(
                             f"{'=' * 10} {key} {'=' * 10}\n",
-                            bold=True and ctx.obj["plain"],
+                            plain=ctx.obj["plain"],
+                            bold=True,
                         )
                     )
                     f.write(value)
@@ -121,13 +119,15 @@ def lint(
 def list_(ctx: click.Context) -> None:
     """List configuration checks."""
     for nos, checks in checker_instance.checks.items():
-        click.secho(f"{'=' * 10} {nos} {'=' * 10}", bold=not ctx.obj["plain"])
+        click.secho(
+            style(f"{'=' * 10} {nos} {'=' * 10}", ctx.obj["plain"], bold=True)
+        )
         for check in checks:
             click.secho(check.name)
 
 
 def check_config(
-    color: bool, format_: str, path: Path, plain: bool, prefix: str, nos: str
+    format_: str, path: Path, plain: bool, prefix: str, nos: str
 ) -> ConfigCheckResult:
     """Run checks on config at a given path."""
     return_value: typing.Union[str, JSONOutputDict] = "" if format_ == "normal" else {}
@@ -141,11 +141,12 @@ def check_config(
             continue
         if format_ == "normal":
             assert isinstance(return_value, str)
-            return_value += click.style(check, bold=not plain)
+            return_value += style(check, plain, bold=True)
             return_value += " " + result.text + "\n"
-            return_value += click.style(
+            return_value += style(
                 prefix + prefix.join(result.lines),
-                fg="red" if color else None,
+                plain,
+                fg="red",
             )
         elif format_ == "json":
             assert isinstance(return_value, dict)

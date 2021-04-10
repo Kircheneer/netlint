@@ -1,6 +1,8 @@
 import typing
 from types import ModuleType
 
+import click
+
 from netlint.checks.checker import CheckFunction
 
 
@@ -13,3 +15,10 @@ def get_method(check: str, module: ModuleType) -> typing.Optional[CheckFunction]
         return method
     else:
         return None
+
+
+def style(message: str, plain: bool, **kwargs) -> str:
+    if plain:
+        return message
+    else:
+        return click.style(message, **kwargs)
