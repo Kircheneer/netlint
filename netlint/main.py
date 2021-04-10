@@ -60,9 +60,7 @@ def cli(ctx: click.Context, plain: bool, color: bool) -> None:
     help="The NOS the configuration(s) is/are for.",
 )
 @click.option(
-    "--select",
-    type=str,
-    help="Comma-separated list of check names to include."
+    "--select", type=str, help="Comma-separated list of check names to include."
 )
 @click.pass_context
 def lint(
@@ -73,7 +71,7 @@ def lint(
     output: typing.Optional[str],
     format_: str,
     nos: str,
-    select: typing.Optional[str]
+    select: typing.Optional[str],
 ) -> None:
     """Lint network device configuration files."""
 
