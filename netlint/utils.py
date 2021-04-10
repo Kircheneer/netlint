@@ -2,6 +2,8 @@ import contextlib
 import sys
 import typing
 
+import click
+
 
 @contextlib.contextmanager
 def smart_open(
@@ -17,3 +19,10 @@ def smart_open(
     finally:
         if fh is not sys.stdout:
             fh.close()
+
+
+def style(message: str, plain: bool, **kwargs) -> str:
+    if plain:
+        return message
+    else:
+        return click.style(message, **kwargs)

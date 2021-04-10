@@ -26,15 +26,34 @@ Example usage
 -------------
 
 Below is an example of how to use this based on one of the faulty test
-configurations:
+configurations (executed from the project root):
 
 ```
-$ netlint --nos cisco_ios ./tests/cisco_ios/configurations/faulty.conf
-A101 Console line unauthenticated
--> line con 0
-A102 HTTP server not disabled
+$  netlint --nos cisco_ios tests/cisco_ios/configurations/faulty.conf
+IOS101 Plaintext user passwords in configuration.
+-> username test password ing
+IOS102 HTTP server not disabled
 -> ip http server
 -> ip http secure-server
-A103 Plaintext user passwords in configuration.
--> username test password ing
+IOS103 Console line unauthenticated
+-> line con 0
+
+```
+
+Installation
+------------
+
+Currently there is no package on Pypy for this project.
+Therefore, the only way of installing is the following:
+
+```bash
+$ git clone https://github.com/Kircheneer/netlint.git
+$ cd netlint
+$ pip install .
+$ netlint --help
+Usage: netlint [OPTIONS] COMMAND [ARGS]...
+
+  Lint network device configuration files.
+
+  [...]
 ```

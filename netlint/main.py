@@ -7,8 +7,7 @@ from click_default_group import DefaultGroup  # type: ignore
 
 from netlint.checks import checker_instance
 from netlint.types import JSONOutputDict, ConfigCheckResult
-from netlint.utils import smart_open
-from tests.utils import style
+from netlint.utils import smart_open, style
 
 
 @click.group(cls=DefaultGroup, default="lint", default_if_no_args=True)
