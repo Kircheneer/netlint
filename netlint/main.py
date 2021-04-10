@@ -56,7 +56,16 @@ def cli(ctx: click.Context, plain: bool) -> None:
     help="The NOS the configuration(s) is/are for.",
 )
 @click.option(
-    "--select", type=str, help="Comma-separated list of check names to include."
+    "--select",
+    type=str,
+    help="Comma-separated list of check names to include"
+    "(mutually exclusive with --exclude).",
+)
+@click.option(
+    "--exclude",
+    type=str,
+    help="Comma-separated list of check names to exclude"
+    "(mutually exclusive with --select).",
 )
 @click.pass_context
 def lint(
@@ -68,8 +77,13 @@ def lint(
     format_: str,
     nos: str,
     select: typing.Optional[str],
+    exclude: typing.Optional[str],
 ) -> None:
     """Lint network device configuration files."""
+
+    if select and exclude:
+        click.echo("Error: --select and --exclude are mutually exclusive.")
+        ctx.exit(-1)
 
     if ctx.invoked_subcommand:
         return
@@ -80,6 +94,13 @@ def lint(
             if check.name in select.split(","):
                 selected_checks.append(check)
         checker_instance.checks[nos] = selected_checks
+    elif exclude:
+        excluded_checks = []
+        for check in checker_instance.checks[nos]:
+            if check.name in exclude.split(","):
+                excluded_checks.append(check)
+        for check in excluded_checks:
+            checker_instance.checks[nos].remove(check)
 
     input_path = Path(path)
 
