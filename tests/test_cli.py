@@ -22,23 +22,16 @@ def test_lint_basic(plain: bool):
 
     cisco_ios_faulty_conf = TESTS_DIR / "cisco_ios" / "configurations" / "faulty.conf"
 
-    commands = [
-        "lint",
-        "--nos",
-        "cisco_ios",
-        str(cisco_ios_faulty_conf)
-    ]
+    commands = ["lint", "--nos", "cisco_ios", str(cisco_ios_faulty_conf)]
 
     if plain:
         commands.insert(0, "--plain")
-    result = runner.invoke(
-        cli,
-        commands
-    )
+    result = runner.invoke(cli, commands)
 
     # Assert the result did not error
-    assert not \
-        result.exception, f"netlint {' '.join(commands)} produced: {result.stdout}"
+    assert (
+        not result.exception
+    ), f"netlint {' '.join(commands)} produced: {result.stdout}"
 
     # Check for ANSI escape codes in the output if --plain is set
     if plain:
