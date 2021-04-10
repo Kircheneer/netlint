@@ -21,7 +21,7 @@ def smart_open(
             fh.close()
 
 
-def style(message: str, plain: bool, **kwargs) -> str:
+def style(message: str, plain: bool, **kwargs: typing.Any) -> str:
     if plain:
         return message
     else:
