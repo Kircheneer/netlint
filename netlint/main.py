@@ -59,20 +59,33 @@ def cli(ctx: click.Context, plain: bool, color: bool) -> None:
     type=click.Choice(["cisco_ios", "cisco_nxos"]),
     help="The NOS the configuration(s) is/are for.",
 )
+@click.option(
+    "--select",
+    type=str,
+    help="Comma-separated list of check names to include."
+)
 @click.pass_context
 def lint(
     ctx: click.Context,
     path: str,
     glob: str,
     prefix: str,
-    output: str,
+    output: typing.Optional[str],
     format_: str,
     nos: str,
+    select: typing.Optional[str]
 ) -> None:
     """Lint network device configuration files."""
 
     if ctx.invoked_subcommand:
         return
+
+    if select:
+        selected_checks = []
+        for check in checker_instance.checks[nos]:
+            if check.name in select.split(","):
+                selected_checks.append(check)
+        checker_instance.checks[nos] = selected_checks
 
     input_path = Path(path)
 
