@@ -1,5 +1,5 @@
-NOS
-===
+Supported Network Operating Systems
+===================================
 
 Overview of the os-specific checks available.
 
