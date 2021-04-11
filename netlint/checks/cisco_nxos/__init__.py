@@ -3,13 +3,12 @@ import typing
 
 from ciscoconfparse import CiscoConfParse
 
-from netlint.checks import checker_instance
-from netlint.checks.checker import CheckResult
+from netlint.checks.checker import CheckResult, Checker
 
 __all__ = ["check_telnet_enabled", "check_bgp_enabled_and_used"]
 
 
-@checker_instance.register(apply_to=["cisco_nxos"], name="NXOS101")
+@Checker.register(apply_to=["cisco_nxos"], name="NXOS101")
 def check_telnet_enabled(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the telnet feature is explicitly enabled."""
     parsed_config = CiscoConfParse(config)
@@ -20,7 +19,7 @@ def check_telnet_enabled(config: typing.List[str]) -> typing.Optional[CheckResul
         return None
 
 
-@checker_instance.register(apply_to=["cisco_nxos"], name="NXOS102")
+@Checker.register(apply_to=["cisco_nxos"], name="NXOS102")
 def check_bgp_enabled_and_used(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import click
 
-from netlint.checks import checker_instance
+from netlint.checks.checker import Checker
 from netlint.types import JSONOutputDict
 from netlint.utils import smart_open, style
 
@@ -90,6 +90,8 @@ def cli(
 
     has_errors = False
 
+    checker_instance = Checker()
+
     if select:
         selected_checks = []
         for check in checker_instance.checks[nos]:
@@ -107,7 +109,7 @@ def cli(
     input_path = Path(path)
 
     if input_path.is_file():
-        processed_config = check_config(input_path, nos)
+        processed_config = check_config(checker_instance, input_path, nos)
         # assert isinstance(processed_config, str)
         if processed_config:
             has_errors = True
@@ -120,7 +122,7 @@ def cli(
         path_items = input_path.glob(glob)
         processed_configs: typing.Dict[str, JSONOutputDict] = {}
         for item in path_items:
-            processed_configs[str(item)] = check_config(item, nos)
+            processed_configs[str(item)] = check_config(checker_instance, item, nos)
         if processed_configs:
             has_errors = True
         with smart_open(output) as f:
@@ -144,7 +146,7 @@ def cli(
         ctx.exit(0)
 
 
-def check_config(path: Path, nos: str) -> JSONOutputDict:
+def check_config(checker_instance: Checker, path: Path, nos: str) -> JSONOutputDict:
     """Run checks on config at a given path."""
     return_value: JSONOutputDict = {}
 

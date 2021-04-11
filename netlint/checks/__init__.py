@@ -1,6 +1,4 @@
-from netlint.checks.checker import Checker
-
-checker_instance: Checker = Checker()
+"""The actual checking logics as well as checks are implemented in this module."""
 
 # Import all the checks in order for the decorators to execute
 from netlint.checks.cisco_ios import *  # noqa

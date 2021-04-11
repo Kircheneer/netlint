@@ -18,15 +18,16 @@ class CheckFunctionTuple(typing.NamedTuple):
 class Checker:
     """Class to handle check execution."""
 
-    def __init__(self) -> None:
-        # Map NOSes to applicable checks
-        self.checks: typing.Dict[str, typing.List[CheckFunctionTuple]] = {}
+    # Map NOSes to applicable checks
+    checks: typing.Dict[str, typing.List[CheckFunctionTuple]] = {}
 
+    def __init__(self) -> None:
         # Map check name to check result (NOS-agnostic)
         self.check_results: typing.Dict[str, typing.Optional[CheckResult]] = {}
 
+    @classmethod
     def register(
-        self, apply_to: typing.List[str], name: str
+        cls, apply_to: typing.List[str], name: str
     ) -> typing.Callable[
         [typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]],
         typing.Callable[[typing.List[str]], typing.Optional[CheckResult]],
@@ -58,10 +59,10 @@ class Checker:
             function.test = True  # type: ignore
             check_function_tuple = CheckFunctionTuple(function=function, name=name)
             for nos in apply_to:
-                if nos in self.checks:
-                    self.checks[nos].append(check_function_tuple)
+                if nos in cls.checks:
+                    cls.checks[nos].append(check_function_tuple)
                 else:
-                    self.checks[nos] = [check_function_tuple]
+                    cls.checks[nos] = [check_function_tuple]
 
             @functools.wraps(function)
             def wrapper(config: typing.List[str]) -> typing.Optional[CheckResult]:

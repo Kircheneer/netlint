@@ -2,13 +2,12 @@ import typing
 
 from ciscoconfparse import CiscoConfParse
 
-from netlint.checks import checker_instance
-from netlint.checks.checker import CheckResult
+from netlint.checks.checker import CheckResult, Checker
 
 __all__ = ["check_default_snmp_communities"]
 
 
-@checker_instance.register(apply_to=["cisco_ios", "cisco_nxos"], name="VAR101")
+@Checker.register(apply_to=["cisco_ios", "cisco_nxos"], name="VAR101")
 def check_default_snmp_communities(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
