@@ -139,9 +139,9 @@ def lint(
 def list_(ctx: click.Context) -> None:
     """List configuration checks."""
     for nos, checks in checker_instance.checks.items():
-        click.secho(style(f"{'=' * 10} {nos} {'=' * 10}", ctx.obj["plain"], bold=True))
+        click.echo(style(f"{'=' * 10} {nos} {'=' * 10}", ctx.obj["plain"], bold=True))
         for check in checks:
-            click.secho(check.name)
+            click.echo(check.name)
 
 
 def check_config(
