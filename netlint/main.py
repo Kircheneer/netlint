@@ -71,7 +71,7 @@ def cli(
     exclude: typing.Optional[str],
     plain: bool,
 ) -> None:
-    """Perform linting."""
+    """Performs static analysis on network device configuration files."""
 
     if select and exclude:
         click.echo("Error: --select and --exclude are mutually exclusive.")
