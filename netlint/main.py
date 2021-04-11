@@ -8,8 +8,10 @@ from netlint.checks import checker_instance
 from netlint.types import JSONOutputDict, ConfigCheckResult
 from netlint.utils import smart_open, style
 
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
-@click.command()
+
+@click.command(context_settings=CONTEXT_SETTINGS)
 @click.argument(
     "path",
     type=click.Path(
@@ -24,6 +26,12 @@ from netlint.utils import smart_open, style
 )
 @click.option(
     "-o", "--output", type=click.Path(writable=True), help="Optional output file."
+)
+@click.option(
+    "--exit-zero",
+    is_flag=True,
+    default=False,
+    help="Exit code 0 even if errors are found.",
 )
 @click.option(
     "--format",
@@ -58,6 +66,8 @@ from netlint.utils import smart_open, style
     help="Un-styled CLI output.",
     envvar="NO_COLOR",
 )
+# Passing None as the first parameter leads to autodiscovery via setuptools
+@click.version_option(None, "-V", "--version", message="%(version)s")
 @click.pass_context
 def cli(
     ctx: click.Context,
@@ -70,6 +80,7 @@ def cli(
     select: typing.Optional[str],
     exclude: typing.Optional[str],
     plain: bool,
+    exit_zero: bool,
 ) -> None:
     """Performs static analysis on network device configuration files."""
 
@@ -79,6 +90,8 @@ def cli(
 
     if ctx.invoked_subcommand:
         return
+
+    has_errors = False
 
     if select:
         selected_checks = []
@@ -98,7 +111,9 @@ def cli(
 
     if input_path.is_file():
         processed_config = check_config(format_, input_path, plain, prefix, nos)
-        assert isinstance(processed_config, str)
+        # assert isinstance(processed_config, str)
+        if processed_config:
+            has_errors = True
         with smart_open(output) as f:
             f.write(processed_config)
     elif input_path.is_dir():
@@ -108,6 +123,9 @@ def cli(
             processed_configs[str(item)] = check_config(
                 format_, item, plain, prefix, nos
             )
+
+        if processed_configs:
+            has_errors = True
         with smart_open(output) as f:
             if format_ == "normal":
                 for key, value in processed_configs.items():
@@ -122,6 +140,11 @@ def cli(
                     f.write(value)
             elif format_ == "json":
                 json.dump(processed_configs, f)
+
+    if has_errors and not exit_zero:
+        ctx.exit(-1)
+    else:
+        ctx.exit(0)
 
 
 def check_config(
