@@ -8,3 +8,4 @@ Overview of the os-specific checks available.
 
    ios
    nxos
+   various

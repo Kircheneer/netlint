@@ -52,6 +52,7 @@ class Checker:
             function.__doc__ += "\n" * 2
             for nos in apply_to:
                 function.__doc__ += f"* {nos}"
+                function.__doc__ += "\n"
             function.__doc__ += "\n"
 
             # Set an attribute on the function in order to indicate its status as
