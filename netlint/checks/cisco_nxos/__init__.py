@@ -5,7 +5,14 @@ from ciscoconfparse import CiscoConfParse
 
 from netlint.checks.checker import CheckResult, Checker
 
-__all__ = ["check_telnet_enabled", "check_bgp_enabled_and_used"]
+__all__ = [
+    "check_telnet_enabled",
+    "check_routing_protocol_enabled_and_used",
+    "check_password_strength",
+    "check_bogus_as",
+]
+
+from netlint.checks.constants import bogus_as_numbers
 
 
 @Checker.register(apply_to=["cisco_nxos"], name="NXOS101")
@@ -20,19 +27,49 @@ def check_telnet_enabled(config: typing.List[str]) -> typing.Optional[CheckResul
 
 
 @Checker.register(apply_to=["cisco_nxos"], name="NXOS102")
-def check_bgp_enabled_and_used(
+def check_routing_protocol_enabled_and_used(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
-    """Check if BGP is actually used - should it be enabled."""
+    """Check if a routing protocol is actually used - should it be enabled."""
     parsed_config = CiscoConfParse(config)
-    bgp_enabled = parsed_config.find_lines("^feature bgp")
-    if not bgp_enabled:
+    for protocol in ["bgp", "ospf", "eigrp", "rip"]:
+        feature_enabled = parsed_config.find_lines(f"^feature {protocol}")
+        if not feature_enabled:
+            return None
+
+        feature_used = parsed_config.find_lines(f"^router {protocol}")
+        if not feature_used:
+            return CheckResult(
+                text=f"{protocol.upper()} enabled but never used.",
+                lines=feature_enabled + feature_used,
+            )
+        else:
+            return None
+
+
+@Checker.register(apply_to=["cisco_nxos"], name="NXOS103")
+def check_password_strength(config: typing.List[str]) -> typing.Optional[CheckResult]:
+    """Check if the password strength check has been disabled."""
+    parsed_config = CiscoConfParse(config)
+    disabled = parsed_config.find_lines("^no password strength-check")
+    if disabled:
+        return CheckResult(text="Password strength-check disabled.", lines=disabled)
+    else:
         return None
 
-    bgp_used = parsed_config.find_lines("^router bgp")
-    if not bgp_used:
-        return CheckResult(
-            text="BGP enabled but never used.", lines=bgp_enabled + bgp_used
-        )
+
+@Checker.register(apply_to=["cisco_nxos"], name="NXOS104")
+def check_bogus_as(config: typing.List[str]) -> typing.Optional[CheckResult]:
+    """Check if any bogus autonomous system is used in the configuration."""
+    parsed_config = CiscoConfParse(config)
+    bgp_routers = parsed_config.find_lines("^router bgp")
+    bad_lines = []
+    for line in bgp_routers:
+        as_number = int(line[11:])
+        if as_number in bogus_as_numbers:
+            bad_lines.append(line)
+
+    if bad_lines:
+        return CheckResult(text="Bogus AS number in use", lines=bad_lines)
     else:
         return None
