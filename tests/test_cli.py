@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -9,7 +10,8 @@ TESTS_DIR = Path(__file__).parent
 
 
 @pytest.mark.parametrize("plain", [True, False])
-def test_lint_basic(plain: bool):
+@pytest.mark.parametrize("format_", ["normal", "json"])
+def test_lint_basic(plain: bool, format_: str):
     """Basic test for CLI linting functionality."""
     runner = CliRunner()
 
@@ -19,16 +21,21 @@ def test_lint_basic(plain: bool):
 
     if plain:
         commands.insert(0, "--plain")
+    commands.extend(["--format", format_])
     result = runner.invoke(cli, commands)
 
     # Assert the result contains an error
     assert type(result.exception) == SystemExit
 
+    # Check for ANSI escape codes in the output if --plain is set
+    if plain:
+        assert "\x1b" not in result.output
+
+    if format_ == "json":
+        result = json.loads(result.output)
+        assert result
+
     # Test if the result no longer contains an error with --exit-zero
     commands.append("--exit-zero")
     result = runner.invoke(cli, commands)
     assert not result.exception
-
-    # Check for ANSI escape codes in the output if --plain is set
-    if plain:
-        assert "\x1b" not in result.output
