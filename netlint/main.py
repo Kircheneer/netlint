@@ -115,7 +115,10 @@ def cli(
         if processed_config:
             has_errors = True
         with smart_open(output) as f:
-            f.write(checks_to_string(processed_config, plain, prefix))
+            if format_ == "plain":
+                f.write(checks_to_string(processed_config, plain, prefix))
+            elif format_ == "json":
+                json.dump(processed_config, f)
     elif input_path.is_dir():
         path_items = input_path.glob(glob)
         processed_configs: typing.Dict[str, JSONOutputDict] = {}
