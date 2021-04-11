@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 
 from netlint.checks import checker_instance
-from netlint.types import JSONOutputDict, ConfigCheckResult
+from netlint.types import JSONOutputDict
 from netlint.utils import smart_open, style
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -110,26 +110,22 @@ def cli(
     input_path = Path(path)
 
     if input_path.is_file():
-        processed_config = check_config(format_, input_path, plain, prefix, nos)
+        processed_config = check_config(input_path, nos)
         # assert isinstance(processed_config, str)
         if processed_config:
             has_errors = True
         with smart_open(output) as f:
-            f.write(processed_config)
+            f.write(checks_to_string(processed_config, plain, prefix))
     elif input_path.is_dir():
         path_items = input_path.glob(glob)
-        processed_configs: typing.Dict[str, typing.Union[str, JSONOutputDict]] = {}
+        processed_configs: typing.Dict[str, JSONOutputDict] = {}
         for item in path_items:
-            processed_configs[str(item)] = check_config(
-                format_, item, plain, prefix, nos
-            )
-
+            processed_configs[str(item)] = check_config(item, nos)
         if processed_configs:
             has_errors = True
         with smart_open(output) as f:
             if format_ == "normal":
                 for key, value in processed_configs.items():
-                    assert isinstance(value, str)
                     f.write(
                         style(
                             f"{'=' * 10} {key} {'=' * 10}\n",
@@ -137,7 +133,8 @@ def cli(
                             bold=True,
                         )
                     )
-                    f.write(value)
+                    f.write(checks_to_string(value, plain, prefix))
+
             elif format_ == "json":
                 json.dump(processed_configs, f)
 
@@ -147,11 +144,9 @@ def cli(
         ctx.exit(0)
 
 
-def check_config(
-    format_: str, path: Path, plain: bool, prefix: str, nos: str
-) -> ConfigCheckResult:
+def check_config(path: Path, nos: str) -> JSONOutputDict:
     """Run checks on config at a given path."""
-    return_value: typing.Union[str, JSONOutputDict] = "" if format_ == "normal" else {}
+    return_value: JSONOutputDict = {}
 
     with open(path, "r") as f:
         configuration = f.readlines()
@@ -160,21 +155,26 @@ def check_config(
     for check, result in checker_instance.check_results.items():
         if not result:
             continue
-        if format_ == "normal":
-            assert isinstance(return_value, str)
-            return_value += style(check, plain, bold=True)
-            return_value += " " + result.text + "\n"
-            return_value += style(
-                prefix + prefix.join(result.lines),
-                plain,
-                fg="red",
-            )
-        elif format_ == "json":
-            assert isinstance(return_value, dict)
-            return_value[check] = {
-                "text": result.text,
-                "lines": result.lines,
-            }
+        return_value[check] = {
+            "text": result.text,
+            "lines": result.lines,
+        }
+    return return_value
+
+
+def checks_to_string(
+    check_result_dict: JSONOutputDict, plain: bool, prefix: str
+) -> str:
+    """Convert a check result to its string representation."""
+    return_value = ""
+    for check, result in check_result_dict.items():
+        return_value += style(check, plain, bold=True)
+        return_value += " " + result["text"] + "\n"
+        return_value += style(
+            prefix + prefix.join(result["lines"]),
+            plain,
+            fg="red",
+        )
     return return_value
 
 

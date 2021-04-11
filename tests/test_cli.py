@@ -21,10 +21,13 @@ def test_lint_basic(plain: bool):
         commands.insert(0, "--plain")
     result = runner.invoke(cli, commands)
 
-    # Assert the result did not error
-    assert (
-        not result.exception
-    ), f"netlint {' '.join(commands)} produced: {result.stdout}"
+    # Assert the result contains an error
+    assert type(result.exception) == SystemExit
+
+    # Test if the result no longer contains an error with --exit-zero
+    commands.append("--exit-zero")
+    result = runner.invoke(cli, commands)
+    assert not result.exception
 
     # Check for ANSI escape codes in the output if --plain is set
     if plain:

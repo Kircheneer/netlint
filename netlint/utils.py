@@ -22,6 +22,7 @@ def smart_open(
 
 
 def style(message: str, plain: bool, **kwargs: typing.Any) -> str:
+    """Style a message with click.style if plain is not set."""
     if plain:
         return message
     else:
