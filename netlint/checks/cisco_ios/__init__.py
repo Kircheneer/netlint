@@ -33,7 +33,7 @@ def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResul
     parsed_config = CiscoConfParse(config)
     lines = parsed_config.find_lines("^ip http")
     if lines:
-        return CheckResult(text="HTTP server not disabled", lines=lines)
+        return CheckResult(text="HTTP server not disabled.", lines=lines)
     else:
         return None
 
@@ -55,6 +55,6 @@ def check_console_password(config: typing.List[str]) -> typing.Optional[CheckRes
             password = True
 
     if not login or not password:
-        return CheckResult(text="Console line unauthenticated", lines=line_con_config)
+        return CheckResult(text="Console line unauthenticated.", lines=line_con_config)
     else:
         return None

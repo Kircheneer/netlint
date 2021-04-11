@@ -11,7 +11,7 @@ from netlint.utils import smart_open, style
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
-@click.command(context_settings=CONTEXT_SETTINGS)
+@click.command(context_settings=CONTEXT_SETTINGS, no_args_is_help=True)  # type: ignore
 @click.argument(
     "path",
     type=click.Path(
@@ -87,9 +87,6 @@ def cli(
     if select and exclude:
         click.echo("Error: --select and --exclude are mutually exclusive.")
         ctx.exit(-1)
-
-    if ctx.invoked_subcommand:
-        return
 
     has_errors = False
 

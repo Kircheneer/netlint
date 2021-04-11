@@ -39,3 +39,17 @@ def test_lint_basic(plain: bool, format_: str):
     commands.append("--exit-zero")
     result = runner.invoke(cli, commands)
     assert not result.exception
+
+
+def test_select_exclude_exclusivity():
+    """Test that --select and --exclude don't work together each other."""
+    runner = CliRunner()
+
+    cisco_ios_faulty_conf = TESTS_DIR / "cisco_ios" / "configurations" / "faulty.conf"
+
+    result = runner.invoke(
+        cli, [str(cisco_ios_faulty_conf), "--select", "ABC", "--exclude", "XYZ"]
+    )
+
+    assert "mutually exclusive" in result.stdout
+    assert result.exception
