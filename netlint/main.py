@@ -9,24 +9,7 @@ from netlint.types import JSONOutputDict, ConfigCheckResult
 from netlint.utils import smart_open, style
 
 
-@click.group()
-@click.option(
-    "-p",
-    "--plain",
-    is_flag=True,
-    default=False,
-    type=bool,
-    help="Un-styled CLI output.",
-    envvar="NO_COLOR",
-)
-@click.pass_context
-def cli(ctx: click.Context, plain: bool) -> None:
-    """Lint network device configuration files."""
-    ctx.ensure_object(dict)
-    ctx.obj["plain"] = plain
-
-
-@cli.command()
+@click.command()
 @click.argument(
     "path",
     type=click.Path(
@@ -66,8 +49,17 @@ def cli(ctx: click.Context, plain: bool) -> None:
     help="Comma-separated list of check names to exclude"
     "(mutually exclusive with --select).",
 )
+@click.option(
+    "-p",
+    "--plain",
+    is_flag=True,
+    default=False,
+    type=bool,
+    help="Un-styled CLI output.",
+    envvar="NO_COLOR",
+)
 @click.pass_context
-def lint(
+def cli(
     ctx: click.Context,
     path: str,
     glob: str,
@@ -77,6 +69,7 @@ def lint(
     nos: str,
     select: typing.Optional[str],
     exclude: typing.Optional[str],
+    plain: bool,
 ) -> None:
     """Perform linting."""
 
@@ -104,9 +97,7 @@ def lint(
     input_path = Path(path)
 
     if input_path.is_file():
-        processed_config = check_config(
-            format_, input_path, ctx.obj["plain"], prefix, nos
-        )
+        processed_config = check_config(format_, input_path, plain, prefix, nos)
         assert isinstance(processed_config, str)
         with smart_open(output) as f:
             f.write(processed_config)
@@ -115,7 +106,7 @@ def lint(
         processed_configs: typing.Dict[str, typing.Union[str, JSONOutputDict]] = {}
         for item in path_items:
             processed_configs[str(item)] = check_config(
-                format_, item, ctx.obj["plain"], prefix, nos
+                format_, item, plain, prefix, nos
             )
         with smart_open(output) as f:
             if format_ == "normal":
@@ -124,23 +115,13 @@ def lint(
                     f.write(
                         style(
                             f"{'=' * 10} {key} {'=' * 10}\n",
-                            plain=ctx.obj["plain"],
+                            plain=plain,
                             bold=True,
                         )
                     )
                     f.write(value)
             elif format_ == "json":
                 json.dump(processed_configs, f)
-
-
-@cli.command(name="list")
-@click.pass_context
-def list_(ctx: click.Context) -> None:
-    """List configuration checks."""
-    for nos, checks in checker_instance.checks.items():
-        click.echo(style(f"{'=' * 10} {nos} {'=' * 10}", ctx.obj["plain"], bold=True))
-        for check in checks:
-            click.echo(check.name)
 
 
 def check_config(
@@ -175,4 +156,4 @@ def check_config(
 
 
 if __name__ == "__main__":
-    cli(obj={})
+    cli()

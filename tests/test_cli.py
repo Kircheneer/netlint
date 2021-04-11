@@ -8,13 +8,6 @@ from netlint.main import cli
 TESTS_DIR = Path(__file__).parent
 
 
-def test_list():
-    """Smoke test to test the list command of the CLI."""
-    runner = CliRunner()
-
-    runner.invoke(cli, ["list"])
-
-
 @pytest.mark.parametrize("plain", [True, False])
 def test_lint_basic(plain: bool):
     """Basic test for CLI linting functionality."""
@@ -22,7 +15,7 @@ def test_lint_basic(plain: bool):
 
     cisco_ios_faulty_conf = TESTS_DIR / "cisco_ios" / "configurations" / "faulty.conf"
 
-    commands = ["lint", "--nos", "cisco_ios", str(cisco_ios_faulty_conf)]
+    commands = ["--nos", "cisco_ios", str(cisco_ios_faulty_conf)]
 
     if plain:
         commands.insert(0, "--plain")
