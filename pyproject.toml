@@ -3,6 +3,23 @@ name = "netlint"
 version = "0.1.0"
 description = "Performs static analysis on network device configuration files."
 authors = ["Leo Kirchner <leo@kirchne.red>"]
+license = "GPLv3"
+readme = "README.md"
+homepage = "https://netlint.readthedocs.io"
+repository = "https://github.com/Kircheneer/netlint"
+keywords = ["lint", "networking"]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Quality Assurance",
+]
+include = [
+    "LICENSE",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
