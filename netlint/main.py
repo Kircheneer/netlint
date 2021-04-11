@@ -3,14 +3,13 @@ import typing
 from pathlib import Path
 
 import click
-from click_default_group import DefaultGroup  # type: ignore
 
 from netlint.checks import checker_instance
 from netlint.types import JSONOutputDict, ConfigCheckResult
 from netlint.utils import smart_open, style
 
 
-@click.group(cls=DefaultGroup, default="lint", default_if_no_args=True)
+@click.group()
 @click.option(
     "-p",
     "--plain",
@@ -79,7 +78,7 @@ def lint(
     select: typing.Optional[str],
     exclude: typing.Optional[str],
 ) -> None:
-    """Lint network device configuration files."""
+    """Perform linting."""
 
     if select and exclude:
         click.echo("Error: --select and --exclude are mutually exclusive.")
