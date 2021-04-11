@@ -1,3 +1,5 @@
+"""Checks that apply to more than one NOS."""
+
 import typing
 
 from ciscoconfparse import CiscoConfParse

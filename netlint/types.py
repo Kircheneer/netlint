@@ -1,3 +1,4 @@
+"""Collection of custom types used."""
 import typing
 
 import typing_extensions

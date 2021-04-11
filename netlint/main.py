@@ -1,3 +1,4 @@
+"""CLI entrypoint to netlint."""
 import json
 import typing
 from pathlib import Path
@@ -82,8 +83,7 @@ def cli(
     plain: bool,
     exit_zero: bool,
 ) -> None:
-    """Performs static analysis on network device configuration files."""
-
+    """Perform static analysis on network device configuration files."""
     if select and exclude:
         click.echo("Error: --select and --exclude are mutually exclusive.")
         ctx.exit(-1)

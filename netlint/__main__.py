@@ -1,3 +1,4 @@
+"""Enable python -m netlint."""
 from netlint.main import cli
 
 

@@ -25,6 +25,7 @@ sphinx-rtd-theme = "^0.5.2"
 m2r2 = "^0.2.7"
 sphinx-click = "^2.7.1"
 pre-commit = "^2.12.0"
+flake8-docstrings = "^1.6.0"
 
 [tool.poetry.extras]
 # The following section is required to install docs dependencies

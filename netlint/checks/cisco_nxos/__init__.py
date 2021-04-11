@@ -24,7 +24,6 @@ def check_bgp_enabled_and_used(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check if BGP is actually used - should it be enabled."""
-
     parsed_config = CiscoConfParse(config)
     bgp_enabled = parsed_config.find_lines("^feature bgp")
     if not bgp_enabled:

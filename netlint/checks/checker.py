@@ -1,16 +1,23 @@
+"""Implement the Checker class to run the checks."""
 import functools
 import typing
 
 
 class CheckResult(typing.NamedTuple):
+    """Result of a single check."""
+
     text: str
     lines: typing.List[str]
 
 
+# Signature of a check function taking in a list of strings (the configuration)
+# and returning a CheckResult.
 CheckFunction = typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]
 
 
 class CheckFunctionTuple(typing.NamedTuple):
+    """Represent check functions along with any metadata."""
+
     name: str
     function: CheckFunction
 
@@ -32,7 +39,7 @@ class Checker:
         [typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]],
         typing.Callable[[typing.List[str]], typing.Optional[CheckResult]],
     ]:
-        """Decorator to register a check with the Checker instance.
+        """Decorate a function to register it as a check with any Checker instance.
 
         :param apply_to: List of NOSes to apply the check for.
         :param name: Name of the check.
@@ -76,6 +83,7 @@ class Checker:
     def run_checks(self, configuration: typing.List[str], nos: str) -> bool:
         """
         Run all the registered checks on the configuration.
+
         :param configuration: The configuration to check.
         :param nos: The NOS the configuration is for.
         :return: True if all checks succeed, False otherwise.

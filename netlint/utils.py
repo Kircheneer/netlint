@@ -1,3 +1,4 @@
+"""CLI utilities."""
 import contextlib
 import sys
 import typing
