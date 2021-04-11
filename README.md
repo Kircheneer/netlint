@@ -1,7 +1,6 @@
 **Note: Still in active development and potentially subject to major changes - keep this in mind when using this.**
 
-Netlint
-=======
+# Netlint
 
 ![Build workflog](https://github.com/Kircheneer/netlint/actions/workflows/main.yml/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/netlint/badge/?version=latest)](https://netlint.readthedocs.io/en/latest/?badge=latest)
@@ -22,8 +21,7 @@ Potential uses of this tool are
   both traditional and automated deployment
 - Basic security auditing of configuration files
 
-Example usage
--------------
+## Example usage
 
 Below is an example of how to use this based on one of the faulty test
 configurations (executed from the project root):
@@ -40,11 +38,16 @@ IOS103 Console line unauthenticated
 
 ```
 
-Installation
-------------
+## Installation
 
-Currently there is no package on Pypy for this project.
-Therefore, the only way of installing is the following:
+There are multiple ways of installing this software.
+
+A package is available on [PyPI](https://pypi.org/project/netlint/),
+therefore you can simply install with `pip install netlint` and
+then simply run `netlint`.
+
+If you prefer to install directly from
+GitHub, here is how you would go about that.
 
 ```bash
 $ git clone https://github.com/Kircheneer/netlint.git

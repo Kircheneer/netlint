@@ -8,6 +8,8 @@ Table of Contents
 
    cli
    nos/index
+   contributing
+   check
 
 Indices and tables
 ------------------
