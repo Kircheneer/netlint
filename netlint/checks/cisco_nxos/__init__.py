@@ -43,8 +43,7 @@ def check_routing_protocol_enabled_and_used(
                 text=f"{protocol.upper()} enabled but never used.",
                 lines=feature_enabled + feature_used,
             )
-        else:
-            return None
+    return None
 
 
 @Checker.register(apply_to=["cisco_nxos"], name="NXOS103")
