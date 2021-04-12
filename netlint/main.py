@@ -128,6 +128,9 @@ def cli(
         with smart_open(output) as f:
             if format_ == "normal":
                 for key, value in processed_configs.items():
+                    if not value:
+                        f.write("\n")  # Newline
+                        continue
                     f.write(
                         style(
                             f"{'=' * 10} {key} {'=' * 10}\n",
