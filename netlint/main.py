@@ -114,7 +114,7 @@ def cli(
         if processed_config:
             has_errors = True
         with smart_open(output) as f:
-            if format_ == "plain":
+            if format_ == "normal":
                 f.write(checks_to_string(processed_config, plain, prefix))
             elif format_ == "json":
                 json.dump(processed_config, f)
