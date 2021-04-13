@@ -1,6 +1,8 @@
-"""Cisco IOS specific configuration checking utitilites."""
+"""Configuration checking utitilites."""
 import re
 import typing
+
+from ciscoconfparse import CiscoConfParse
 
 
 def get_password_hash_algorithm(config_line: str) -> typing.Optional[int]:
@@ -20,3 +22,22 @@ def get_password_hash_algorithm(config_line: str) -> typing.Optional[int]:
         # 1) the re.match
         # 2) the fact that bool(match) == True
         return int(integer[0])
+
+
+def get_access_list_usage(
+    config: CiscoConfParse, name: typing.Optional[str] = None
+) -> typing.List[str]:
+    """Return lines that use access lists.
+
+    :param config: The config to filter in.
+    :param name: Optionally filter for a specific ACL name.
+    """
+    access_list_usage = "(ip)? access-(group|class)"
+    if name:
+        access_list_usage += " " + name
+    return config.find_lines(access_list_usage)
+
+
+def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
+    """Return all lines where access lists are defined."""
+    return config.find_lines(r"^ip(v6)?\saccess-list\s(standard|extended)")
