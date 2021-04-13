@@ -157,7 +157,7 @@ def cli(
     configurations: typing.Dict[str, typing.List[str]] = {"default": []}
 
     input_path = Path(path)
-    nos_mapping = {"default": None}
+    nos_mapping: typing.Dict[str, NOS] = {}
     if input_path.is_file():
         with open(input_path) as f:
             configurations["default"] = f.readlines()
