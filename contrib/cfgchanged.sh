@@ -17,6 +17,7 @@
 Storage="data"
 MyPath=`dirname $0`
 FilePath="$MyPath/$Storage/$OX_NODE_GROUP"
+# Find git (makes it independent)
 GitCmd=`which git`
 
 # Clone the last version of the config
@@ -29,5 +30,5 @@ else
   $GitCmd clone "$OX_REPO_NAME" "$FilePath"
 fi
 
-# No run the validator
+# Now run the validator
 $MyPath/validate_config.sh  "$MyPath/$Storage/$OX_NODE_GROUP/$OX_NODE_NAME" "$OX_NODE_MODEL"
