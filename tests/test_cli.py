@@ -17,7 +17,7 @@ def test_lint_basic(quiet: bool, format_: str):
 
     cisco_ios_faulty_conf = TESTS_DIR / "cisco_ios" / "configurations" / "faulty.conf"
 
-    commands = ["--nos", "cisco_ios", str(cisco_ios_faulty_conf)]
+    commands = [str(cisco_ios_faulty_conf)]
 
     if quiet:
         commands.insert(0, "--quiet")

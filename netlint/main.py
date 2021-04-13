@@ -8,7 +8,7 @@ import toml
 
 from netlint.checks.checker import Checker
 from netlint.types import JSONOutputDict
-from netlint.utils import smart_open, style
+from netlint.utils import smart_open, style, detect_nos, NOS
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_CONFIG = "pyproject.toml"
@@ -88,11 +88,6 @@ def configure(
     help="The format of the output data (--format json implies --quiet).",
 )
 @click.option(
-    "--nos",
-    type=click.Choice(["cisco_ios", "cisco_nxos"]),
-    help="The NOS the configuration(s) is/are for.",
-)
-@click.option(
     "--select",
     type=str,
     help="Comma-separated list of check names to include"
@@ -139,7 +134,6 @@ def cli(
     prefix: str,
     output: typing.Optional[str],
     format_: str,
-    nos: str,
     select: typing.Optional[str],
     exclude: typing.Optional[str],
     quiet: bool,
@@ -160,24 +154,42 @@ def cli(
 
     checker_instance = Checker()
 
-    if select:
-        selected_checks = []
-        for check in checker_instance.checks[nos]:
-            if check.name in select.split(","):
-                selected_checks.append(check)
-        checker_instance.checks[nos] = selected_checks
-    elif exclude:
-        excluded_checks = []
-        for check in checker_instance.checks[nos]:
-            if check.name in exclude.split(","):
-                excluded_checks.append(check)
-        for check in excluded_checks:
-            checker_instance.checks[nos].remove(check)
+    configurations: typing.Dict[str, typing.List[str]] = {"default": []}
 
     input_path = Path(path)
+    nos_mapping: typing.Dict[str, NOS] = {}
+    if input_path.is_file():
+        with open(input_path) as f:
+            configurations["default"] = f.readlines()
+        nos_mapping["default"] = detect_nos(configurations["default"])
+    elif input_path.is_dir():
+        path_items = input_path.glob(glob)
+        for item in path_items:
+            dict_key = str(item)
+            with open(item) as f:
+                configurations[dict_key] = f.readlines()
+            nos_mapping[dict_key] = detect_nos(configurations[dict_key])
+
+    if select:
+        selected_checks = []
+        for check in checker_instance.checks[nos_mapping["default"]]:
+            if check.name in select.split(","):
+                selected_checks.append(check)
+        checker_instance.checks[nos_mapping["default"]] = selected_checks
+    elif exclude:
+        excluded_checks = []
+        # Iterate over each unique NOS
+        for nos in set(nos_mapping.values()):
+            for check in checker_instance.checks[nos]:
+                if check.name in exclude.split(","):
+                    excluded_checks.append(check)
+        for check in excluded_checks:
+            checker_instance.checks[nos_mapping["default"]].remove(check)
 
     if input_path.is_file():
-        processed_config = check_config(checker_instance, input_path, nos)
+        processed_config = check_config(
+            checker_instance, configurations["default"], nos_mapping["default"]
+        )
         if processed_config:
             has_errors = True
         with smart_open(output) as f:
@@ -189,7 +201,9 @@ def cli(
         path_items = input_path.glob(glob)
         processed_configs: typing.Dict[str, JSONOutputDict] = {}
         for item in path_items:
-            processed_configs[str(item)] = check_config(checker_instance, item, nos)
+            processed_configs[str(item)] = check_config(
+                checker_instance, configurations[str(item)], nos_mapping[str(item)]
+            )
         if processed_configs:
             has_errors = True
         with smart_open(output) as f:
@@ -219,12 +233,12 @@ def cli(
         ctx.exit(0)
 
 
-def check_config(checker_instance: Checker, path: Path, nos: str) -> JSONOutputDict:
+def check_config(
+    checker_instance: Checker, configuration: typing.List[str], nos: NOS
+) -> JSONOutputDict:
     """Run checks on config at a given path."""
     return_value: JSONOutputDict = {}
 
-    with open(path, "r") as f:
-        configuration = f.readlines()
     checker_instance.run_checks(configuration, nos)
 
     for check, result in checker_instance.check_results.items():
