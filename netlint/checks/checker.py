@@ -2,6 +2,8 @@
 import functools
 import typing
 
+from netlint.utils import NOS
+
 
 class CheckResult(typing.NamedTuple):
     """Result of a single check."""
@@ -26,7 +28,7 @@ class Checker:
     """Class to handle check execution."""
 
     # Map NOSes to applicable checks
-    checks: typing.Dict[str, typing.List[CheckFunctionTuple]] = {}
+    checks: typing.Dict[NOS, typing.List[CheckFunctionTuple]] = {}
 
     def __init__(self) -> None:
         # Map check name to check result (NOS-agnostic)
@@ -34,7 +36,7 @@ class Checker:
 
     @classmethod
     def register(
-        cls, apply_to: typing.List[str], name: str
+        cls, apply_to: typing.List[NOS], name: str
     ) -> typing.Callable[
         [typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]],
         typing.Callable[[typing.List[str]], typing.Optional[CheckResult]],
@@ -80,7 +82,7 @@ class Checker:
 
         return decorator
 
-    def run_checks(self, configuration: typing.List[str], nos: str) -> bool:
+    def run_checks(self, configuration: typing.List[str], nos: NOS) -> bool:
         """
         Run all the registered checks on the configuration.
 

@@ -8,8 +8,10 @@ from netlint.checks.checker import CheckResult, Checker
 
 __all__ = ["check_default_snmp_communities"]
 
+from netlint.utils import NOS
 
-@Checker.register(apply_to=["cisco_ios", "cisco_nxos"], name="VAR101")
+
+@Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR101")
 def check_default_snmp_communities(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
