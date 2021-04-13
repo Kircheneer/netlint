@@ -12,6 +12,8 @@ CHECKS = [method for method in dir(cisco_ios) if method.startswith("check")]
 @pytest.mark.parametrize("check", CHECKS)
 def test_basic_faulty(check: str):
     configuration = CONFIG_DIR / (check + "_faulty.conf")
+    assert configuration.is_file(), f"You need to add a file called {configuration}."
+
     method = get_method(check, cisco_ios)
     if not method:
         return
@@ -22,6 +24,7 @@ def test_basic_faulty(check: str):
 @pytest.mark.parametrize("check", CHECKS)
 def test_basic_good(check: str):
     configuration = CONFIG_DIR / (check + "_good.conf")
+    assert configuration.is_file(), f"You need to add a file called {configuration}."
     method = get_method(check, cisco_ios)
     if not method:
         return

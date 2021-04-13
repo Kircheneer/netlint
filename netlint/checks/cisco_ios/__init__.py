@@ -1,16 +1,18 @@
 """Checks for the Cisco IOS NOS."""
-
 import typing
 
 from ciscoconfparse import CiscoConfParse
 
 from netlint.checks.checker import CheckResult, Checker
+from netlint.checks import constants as c
 
 __all__ = [
     "check_plaintext_passwords",
     "check_console_password",
     "check_ip_http_server",
 ]
+
+from netlint.checks.cisco_ios.utils import get_password_hash_algorithm
 
 
 @Checker.register(apply_to=["cisco_ios"], name="IOS101")
@@ -19,6 +21,17 @@ def check_plaintext_passwords(config: typing.List[str]) -> typing.Optional[Check
     parsed_config = CiscoConfParse(config)
     lines = parsed_config.find_lines("^username.*password")
     if lines:
+        # If `service password-encryption` is configured, users are saved to the
+        # config like `username test password 7 $ENCRYPTED. The following for-loop
+        # checks for that.
+        for line in lines:
+            has_hash_algorithm = get_password_hash_algorithm(line)
+            if not has_hash_algorithm:
+                break
+        else:
+            # If the for loop wasn't exited prematurely, no plaintext passwords
+            # are present.
+            return None
         return CheckResult(
             text="Plaintext user passwords in configuration.", lines=lines
         )
@@ -55,5 +68,23 @@ def check_console_password(config: typing.List[str]) -> typing.Optional[CheckRes
 
     if not login or not password:
         return CheckResult(text="Console line unauthenticated.", lines=line_con_config)
+    else:
+        return None
+
+
+@Checker.register(apply_to=["cisco_ios"], name="IOS104")
+def check_password_hash_strength(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check if strong password hash algorithms were used."""
+    parsed_config = CiscoConfParse(config)
+    lines_with_passwords = parsed_config.find_lines(r"^.*(password|secret)\s\d.*$")
+    bad_lines = []
+    for line in lines_with_passwords:
+        hash_algorithm = get_password_hash_algorithm(line)
+        if hash_algorithm in c.bad_hash_algorithms:
+            bad_lines.append(line)
+    if bad_lines:
+        return CheckResult("Insecure hash algorithms in use.", lines=bad_lines)
     else:
         return None
