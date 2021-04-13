@@ -4,12 +4,52 @@ import typing
 from pathlib import Path
 
 import click
+import toml
 
 from netlint.checks.checker import Checker
 from netlint.types import JSONOutputDict
 from netlint.utils import smart_open, style
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+DEFAULT_CONFIG = "pyproject.toml"
+
+
+def configure(
+    ctx: click.Context, _: typing.Union[click.Option, click.Parameter], filename: str
+) -> None:
+    """Evaluate the config file and set the default_map accordingly.
+
+    Used as a callback from a click option.
+    """
+    configuration_file = Path(filename).absolute()
+    configuration_dict = {}
+    if configuration_file.exists():
+        if filename == DEFAULT_CONFIG:
+            try:
+                configuration_dict = toml.load(configuration_file)["tool"]["netlint"]
+            except KeyError:
+                # If the user uses a pyproject.toml file but chooses not to configure
+                # netlint there, we don't want to output anything.
+                return
+        else:
+            try:
+                configuration_dict = toml.load(configuration_file)["netlint"]
+            except KeyError:
+                click.secho(
+                    f"Configuration file '{configuration_file} doesn't contain"
+                    f"a [netlint] section."
+                )
+        ctx.default_map = configuration_dict
+    elif filename != DEFAULT_CONFIG:
+        # If the the configuration location is not the default and
+        # it doesn't exist, quit.
+        click.secho(
+            f"Configuration file '{configuration_file}' doesn't exist.", err=True
+        )
+        ctx.exit(-1)
+    else:
+        # The pyproject.toml file is the configuration file but doesn't exist.
+        return
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, no_args_is_help=True)  # type: ignore
@@ -56,13 +96,13 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "--select",
     type=str,
     help="Comma-separated list of check names to include"
-    "(mutually exclusive with --exclude).",
+    " (mutually exclusive with --exclude).",
 )
 @click.option(
     "--exclude",
     type=str,
     help="Comma-separated list of check names to exclude"
-    "(mutually exclusive with --select).",
+    " (mutually exclusive with --select).",
 )
 @click.option(
     "-q",
@@ -79,6 +119,16 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Show colored output.",
     envvar="NO_COLOR",
 )
+@click.option(
+    "-c",
+    "--config",
+    default="pyproject.toml",
+    type=click.Path(file_okay=True, dir_okay=False),
+    callback=configure,
+    is_eager=True,
+    show_default=True,
+    help="Path to TOML configuration file.",
+)
 # Passing None as the first parameter leads to autodiscovery via setuptools
 @click.version_option(None, "-V", "--version", message="%(version)s")
 @click.pass_context
@@ -94,6 +144,7 @@ def cli(
     exclude: typing.Optional[str],
     quiet: bool,
     color: bool,
+    config: str,
     exit_zero: bool,
 ) -> None:
     """Perform static analysis on network device configuration files."""

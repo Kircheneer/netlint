@@ -25,7 +25,10 @@ def test_lint_basic(quiet: bool, format_: str):
     result = runner.invoke(cli, commands)
 
     # Assert the result contains an error
-    assert type(result.exception) == SystemExit
+    if not result.exception:
+        raise AssertionError("The result should contain errors here.")
+    elif type(result.exception) != SystemExit:
+        raise result.exception
 
     # Check for ANSI escape codes in the output if --quiet is set
     if quiet:
