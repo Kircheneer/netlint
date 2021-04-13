@@ -20,10 +20,16 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     ),
 )
 @click.option(
-    "--glob", default="*.conf", help="Glob pattern to match files in the path with."
+    "--glob",
+    default="*.conf",
+    show_default=True,
+    help="Glob pattern to match files in the path with.",
 )
 @click.option(
-    "--prefix", default="-> ", help="Prefix for configuration lines output to the CLI."
+    "--prefix",
+    default="-> ",
+    show_default=True,
+    help="Prefix for configuration lines output to the CLI.",
 )
 @click.option(
     "-o", "--output", type=click.Path(writable=True), help="Optional output file."
@@ -39,7 +45,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "format_",
     default="normal",
     type=click.Choice(["json", "normal"]),
-    help="The format of the output data.",
+    help="The format of the output data (--format json implies --quiet).",
 )
 @click.option(
     "--nos",
@@ -59,12 +65,18 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "(mutually exclusive with --select).",
 )
 @click.option(
-    "-p",
-    "--plain",
+    "-q",
+    "--quiet",
     is_flag=True,
     default=False,
     type=bool,
-    help="Un-styled CLI output.",
+    help="Don't output non-errors.",
+)
+@click.option(
+    "--color/--no-color",
+    default=True,
+    type=bool,
+    help="Show colored output.",
     envvar="NO_COLOR",
 )
 # Passing None as the first parameter leads to autodiscovery via setuptools
@@ -80,13 +92,18 @@ def cli(
     nos: str,
     select: typing.Optional[str],
     exclude: typing.Optional[str],
-    plain: bool,
+    quiet: bool,
+    color: bool,
     exit_zero: bool,
 ) -> None:
     """Perform static analysis on network device configuration files."""
     if select and exclude:
         click.echo("Error: --select and --exclude are mutually exclusive.")
         ctx.exit(-1)
+
+    # Assume the user doesn't want any unnecessary output when outputting JSON
+    if format_ == "json":
+        quiet = True
 
     has_errors = False
 
@@ -110,12 +127,11 @@ def cli(
 
     if input_path.is_file():
         processed_config = check_config(checker_instance, input_path, nos)
-        # assert isinstance(processed_config, str)
         if processed_config:
             has_errors = True
         with smart_open(output) as f:
             if format_ == "normal":
-                f.write(checks_to_string(processed_config, plain, prefix))
+                f.write(checks_to_string(processed_config, quiet, color, prefix))
             elif format_ == "json":
                 json.dump(processed_config, f)
     elif input_path.is_dir():
@@ -134,14 +150,17 @@ def cli(
                     f.write(
                         style(
                             f"{'=' * 10} {key} {'=' * 10}\n",
-                            plain=plain,
+                            quiet=quiet,
                             bold=True,
                         )
                     )
-                    f.write(checks_to_string(value, plain, prefix))
+                    f.write(checks_to_string(value, quiet, color, prefix))
 
             elif format_ == "json":
                 json.dump(processed_configs, f)
+
+    if not has_errors and not quiet:
+        click.secho("No problems found!", bold=True)
 
     if has_errors and not exit_zero:
         ctx.exit(-1)
@@ -168,7 +187,7 @@ def check_config(checker_instance: Checker, path: Path, nos: str) -> JSONOutputD
 
 
 def checks_to_string(
-    check_result_dict: JSONOutputDict, plain: bool, prefix: str
+    check_result_dict: JSONOutputDict, plain: bool, color: bool, prefix: str
 ) -> str:
     """Convert a check result to its string representation."""
     return_value = ""
@@ -178,7 +197,7 @@ def checks_to_string(
         return_value += style(
             prefix + prefix.join(result["lines"]),
             plain,
-            fg="red",
+            fg="red" if color else None,
         )
     return return_value
 

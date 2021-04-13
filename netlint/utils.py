@@ -22,9 +22,9 @@ def smart_open(
             fh.close()
 
 
-def style(message: str, plain: bool, **kwargs: typing.Any) -> str:
-    """Style a message with click.style if plain is not set."""
-    if plain:
+def style(message: str, quiet: bool, **kwargs: typing.Any) -> str:
+    """Style a message with click.style if quiet is not set."""
+    if quiet:
         return message
     else:
         return click.style(message, **kwargs)
