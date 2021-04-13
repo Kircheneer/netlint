@@ -13,7 +13,7 @@ __all__ = [
     "check_password_hash_strength",
 ]
 
-from netlint.checks.cisco_ios.utils import get_password_hash_algorithm
+from netlint.checks.utils import get_password_hash_algorithm
 from netlint.utils import NOS
 
 
