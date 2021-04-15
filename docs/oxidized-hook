@@ -1,22 +1,43 @@
+Oxidized webhook
+######
+
 This assumes using oxidized with an git basted storage, it might look little different if you use flat-file storage.
-1) create /opt/nettools/
-2) copy contrib/cfgchanged.sh to /opt/nettools/ (make sure it's executable)
-3) In the oxidized config file `.config/oxidized/config` add the following :
 
-```
-hooks:
-  conf_changed:
-    type: exec
-    events: [post_store]
-    cmd: '/opt/nettools/cfgchanged.sh $OX_EVENT $OX_NODE_NAME $OX_NODE_IP $OX_NODE_FROM $OX_NODE_MSG $OX_NODE_GROUP $OX_NODE_MODEL $OX_JOB_STATUS $OX_JOB_TIME $OX_REPO_COMMITREF $OX_REPO_NAME'
-```
-now whenever oxidized detects a config change, the `/opt/nettools/cfgchanged.sh` script is fired.
-It leaves you with all most recent configs in `/opt/nettools/data/` (The tree structure below depends upon the oxidized config.)
-It also calls the `validate_config.sh` script in the same folder, with two parameters:
-a) The full name of the device config
-b) The devicetype as defined in oxidized
-So `validate_config.sh` wil have to call/ execute the validation.
+Installation
+****
 
-Bonus: 
-If you use an IDS (t.ex. OSSEC) you can monitors the `/opt/nettools/data` folder (ignore .git folders) to report changes the network.
-*NOTE* It only reports as fast and often as oxidized is running !!
+1) create `/opt/nettools/`
+2) copy `contrib/cfgchanged.sh` and `contrib/validate_config.sh` to /opt/nettools/ (make sure it's executable)
+
+Configuration
+****
+
+1) In the oxidized config file `.config/oxidized/config` add the following to fire `/opt/nettools/cfgchanged.sh` on every config change oxidized finds in it's targets :
+    hooks:
+      conf_changed:
+        type: exec
+        events: [post_store]
+        cmd: '/opt/nettools/cfgchanged.sh $OX_EVENT $OX_NODE_NAME $OX_NODE_IP $OX_NODE_FROM $OX_NODE_MSG $OX_NODE_GROUP $OX_NODE_MODEL $OX_JOB_STATUS $OX_JOB_TIME $OX_REPO_COMMITREF $OX_REPO_NAME
+2) change the ouput folder in `validate_config.sh` to the folder you will find the reports **note: the old reports will be overwritten**
+
+
+Now whenever oxidized detects a config change, the `/opt/nettools/cfgchanged.sh` script is fired.
+It also calls the `validate_config.sh` script in that same folder, with two parameters:
+
+- The full name of the device config
+- The devicetype as defined in oxidized
+
+This leaves you with (assuming you did not alter paths):
+
+- all most recent configs in `/opt/nettools/data/` (The tree structure below depends upon the oxidized config.)
+- all report in $HOME/lint-reports
+
+SIEM
+****
+There is a small (?) bonus here: 
+If you use an IDS (t.ex. OSSEC) you can monitors your device configs and report changes the network. Add this to the ossec.conf:
+    <directories report_changes="yes" realtime="yes" check_all="yes">/opt/siemdata</directories>
+
+    <ignore type="sregex">.git$</ignore>
+
+**NOTE: It only reports as fast and often as oxidized is running !!**
