@@ -30,6 +30,7 @@ sphinx-rtd-theme = { version = "^0.5.2", optional = true }
 m2r2 = {version = "^0.2.7", optional = true }
 sphinx-click = {version = "^2.7.1", optional = true }
 typing-extensions = "^3.7.4"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.812"
@@ -51,6 +52,8 @@ docs = ["sphinx", "sphinx_rtd_theme", "m2r2", "spinx-click"]
 
 [tool.poetry.scripts]
 netlint = 'netlint.main:cli'
+
+[tool.netlint]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

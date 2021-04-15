@@ -13,9 +13,10 @@ __all__ = [
 ]
 
 from netlint.checks.constants import bogus_as_numbers
+from netlint.utils import NOS
 
 
-@Checker.register(apply_to=["cisco_nxos"], name="NXOS101")
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS101")
 def check_telnet_enabled(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the telnet feature is explicitly enabled."""
     parsed_config = CiscoConfParse(config)
@@ -26,7 +27,7 @@ def check_telnet_enabled(config: typing.List[str]) -> typing.Optional[CheckResul
         return None
 
 
-@Checker.register(apply_to=["cisco_nxos"], name="NXOS102")
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS102")
 def check_routing_protocol_enabled_and_used(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
@@ -46,7 +47,7 @@ def check_routing_protocol_enabled_and_used(
     return None
 
 
-@Checker.register(apply_to=["cisco_nxos"], name="NXOS103")
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS103")
 def check_password_strength(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the password strength check has been disabled."""
     parsed_config = CiscoConfParse(config)
@@ -57,7 +58,7 @@ def check_password_strength(config: typing.List[str]) -> typing.Optional[CheckRe
         return None
 
 
-@Checker.register(apply_to=["cisco_nxos"], name="NXOS104")
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS104")
 def check_bogus_as(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if any bogus autonomous system is used in the configuration."""
     parsed_config = CiscoConfParse(config)
