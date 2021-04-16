@@ -11,6 +11,7 @@ Table of Contents
    nos/index
    contributing
    check
+   integrations/index
 
 Indices and tables
 ------------------
