@@ -31,11 +31,25 @@ def get_access_list_usage(
 
     :param config: The config to filter in.
     :param name: Optionally filter for a specific ACL name.
+    :return: A list of configuration lines that use this ACL.
     """
-    access_list_usage = "(ip)? access-(group|class)"
+    # Find all access lists used in packet filtering
+    access_list_usage_in_filtering_regex = r"(ip)? access-(group|class)"
     if name:
-        access_list_usage += " " + name
-    return config.find_lines(access_list_usage)
+        access_list_usage_in_filtering_regex += " " + name
+    access_list_usage_in_filtering = config.find_lines(
+        access_list_usage_in_filtering_regex
+    )
+
+    # Find all access lists used in route-maps
+    access_list_usage_in_route_map_regex = r"^\s+match ip \S+"
+    if name:
+        access_list_usage_in_route_map_regex += " " + name
+    access_list_usage_in_route_map = config.find_children_w_parents(
+        r"^route-map", access_list_usage_in_route_map_regex
+    )
+
+    return access_list_usage_in_filtering + access_list_usage_in_route_map
 
 
 def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
