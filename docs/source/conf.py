@@ -12,6 +12,13 @@
 #
 import os
 import sys
+from importlib import import_module
+from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader
+
+from netlint.checks.checker import Check, Checker
+from netlint.utils import NOS
 
 sys.path.insert(0, os.path.abspath("../../"))
 
@@ -55,3 +62,24 @@ source_suffix = [".rst", ".md"]
 
 # Sort autodoc members by source to keep the numbering correct.
 autodoc_member_order = "bysource"
+
+
+def build_checker_docs(app) -> None:
+    """Automatically build documentation from the available checker functions."""
+    nos_dir = Path("./source/nos")
+    env = Environment(loader=FileSystemLoader("source"))
+    for nos, checks in Checker.checks.items():
+        nos_template_file = env.get_template("checks.j2")
+        rendered_template = nos_template_file.render(nos=str(nos), checks=checks)
+
+        with open(nos_dir / f"{str(nos)}.rst", "w") as f:
+            f.write(rendered_template)
+
+    index_template_file = env.get_template("checks_index.j2")
+    rendered_index = index_template_file.render(nos_list=Checker.checks.keys())
+    with open(nos_dir / "index.rst", "w") as f:
+        f.write(rendered_index)
+
+
+def setup(app):
+    app.connect("builder-inited", build_checker_docs)
