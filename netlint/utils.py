@@ -37,6 +37,10 @@ class NOS(Enum):
     CISCO_IOS = "cisco_ios"
     CISCO_NXOS = "cisco_nxos"
 
+    def __str__(self):
+        """Overwrite __str__ to prettify the documentation."""
+        return self.name.replace("_", " ")
+
 
 def detect_nos(configuration: typing.List[str]) -> NOS:
     """Automatically detect the NOS in the configuration.
