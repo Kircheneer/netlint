@@ -39,7 +39,7 @@ class NOS(Enum):
 
     def __str__(self):
         """Overwrite __str__ to prettify the documentation."""
-        return self.name.replace("_", " ")
+        return self.name
 
 
 def detect_nos(configuration: typing.List[str]) -> NOS:

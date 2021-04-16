@@ -6,6 +6,6 @@ Overview of all configurations checks available by vendor.
 .. toctree::
    :maxdepth: 1
 
-   cisco_ios
-   cisco_nxos
-   
+   {% for nos in nos_list -%}
+   {{ nos|lower }}
+   {% endfor %}

@@ -24,11 +24,29 @@ class CheckFunctionTuple(typing.NamedTuple):
     function: CheckFunction
 
 
+class Check:
+    """Class to represent a check function.
+
+    Auto-generated when @Checker.register() is used on a function."""
+
+    def __init__(
+        self, check_function: CheckFunction, apply_to: typing.List[NOS], name: str
+    ) -> None:
+        self.check_function = check_function
+        self.apply_to = apply_to
+        self.name = name
+        self.function_doc = check_function.__doc__
+
+    def __call__(self, configuration: typing.List[str]) -> typing.Optional[CheckResult]:
+        """Call the underlying function."""
+        return self.check_function(configuration)
+
+
 class Checker:
     """Class to handle check execution."""
 
     # Map NOSes to applicable checks
-    checks: typing.Dict[NOS, typing.List[CheckFunctionTuple]] = {}
+    checks: typing.Dict[NOS, typing.List[Check]] = {}
 
     def __init__(self) -> None:
         # Map check name to check result (NOS-agnostic)
@@ -39,7 +57,7 @@ class Checker:
         cls, apply_to: typing.List[NOS], name: str
     ) -> typing.Callable[
         [typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]],
-        typing.Callable[[typing.List[str]], typing.Optional[CheckResult]],
+        Check,
     ]:
         """Decorate a function to register it as a check with any Checker instance.
 
@@ -49,36 +67,18 @@ class Checker:
 
         def decorator(
             function: typing.Callable[[typing.List[str]], typing.Optional[CheckResult]],
-        ) -> typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]:
-            # Extend the docstring to include the decorator metadata
-            heading = f"**{name}**\n\n"
-            if function.__doc__:
-                function.__doc__ = heading + function.__doc__
-            else:
-                function.__doc__ = heading
-            function.__doc__ += "\n\n"
-            function.__doc__ += "Applies to:"
-            function.__doc__ += "\n" * 2
-            for nos in apply_to:
-                function.__doc__ += f"* {nos}"
-                function.__doc__ += "\n"
-            function.__doc__ += "\n"
-
-            # Set an attribute on the function in order to indicate its status as
-            # a check to the testing suite.
-            function.test = True  # type: ignore
-            check_function_tuple = CheckFunctionTuple(function=function, name=name)
-            for nos in apply_to:
-                if nos in cls.checks:
-                    cls.checks[nos].append(check_function_tuple)
-                else:
-                    cls.checks[nos] = [check_function_tuple]
-
+        ) -> Check:
             @functools.wraps(function)
             def wrapper(config: typing.List[str]) -> typing.Optional[CheckResult]:
                 return function(config)
 
-            return wrapper
+            check = Check(check_function=wrapper, apply_to=apply_to, name=name)
+            for nos in apply_to:
+                if nos in cls.checks:
+                    cls.checks[nos].append(check)
+                else:
+                    cls.checks[nos] = [check]
+            return check
 
         return decorator
 
@@ -91,5 +91,5 @@ class Checker:
         :return: True if all checks succeed, False otherwise.
         """
         for check in self.checks[nos]:
-            self.check_results[check.name] = check.function(configuration)
+            self.check_results[check.name] = check(configuration)
         return not any(self.check_results.values())
