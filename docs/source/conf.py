@@ -64,8 +64,8 @@ autodoc_member_order = "bysource"
 
 def build_checker_docs(app) -> None:
     """Automatically build documentation from the available checker functions."""
-    nos_dir = Path("./source/nos")
-    env = Environment(loader=FileSystemLoader("source"))
+    nos_dir = Path("./nos")
+    env = Environment(loader=FileSystemLoader("."))
     for nos, checks in Checker.checks.items():
         nos_template_file = env.get_template("checks.j2")
         rendered_template = nos_template_file.render(nos=str(nos), checks=checks)
@@ -79,5 +79,4 @@ def build_checker_docs(app) -> None:
         f.write(rendered_index)
 
 
-def setup(app):
-    app.connect("builder-inited", build_checker_docs)
+build_checker_docs(None)
