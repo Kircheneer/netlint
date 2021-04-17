@@ -9,9 +9,9 @@ from netlint.cli.main import cli
 TESTS_DIR = Path(__file__).parent
 
 
-@pytest.mark.parametrize("quiet", [True, False])
+@pytest.mark.parametrize("plain", [True, False])
 @pytest.mark.parametrize("format_", ["normal", "json"])
-def test_lint_basic(quiet: bool, format_: str):
+def test_lint_basic(plain: bool, format_: str):
     """Basic test for CLI linting functionality."""
     runner = CliRunner()
 
@@ -19,8 +19,8 @@ def test_lint_basic(quiet: bool, format_: str):
 
     commands = [str(cisco_ios_faulty_conf)]
 
-    if quiet:
-        commands.insert(0, "--quiet")
+    if plain:
+        commands.insert(0, "--plain")
     commands.extend(["--format", format_])
     result = runner.invoke(cli, commands)
 
@@ -31,7 +31,7 @@ def test_lint_basic(quiet: bool, format_: str):
         raise result.exception
 
     # Check for ANSI escape codes in the output if --quiet is set
-    if quiet:
+    if plain:
         assert "\x1b" not in result.output
 
     if format_ == "json":

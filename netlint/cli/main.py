@@ -109,6 +109,9 @@ def configure(
     help="Don't output non-errors.",
 )
 @click.option(
+    "-p", "--plain", is_flag=True, default=False, type=bool, help="Plain output."
+)
+@click.option(
     "--color/--no-color",
     default=True,
     type=bool,
@@ -139,6 +142,7 @@ def cli(
     exclude: typing.Optional[str],
     quiet: bool,
     color: bool,
+    plain: bool,
     config: str,
     exit_zero: bool,
 ) -> None:
@@ -147,9 +151,11 @@ def cli(
         click.echo("Error: --select and --exclude are mutually exclusive.")
         ctx.exit(-1)
 
-    # Assume the user doesn't want any unnecessary output when outputting JSON
-    if format_ == "json":
+    # Assume the user doesn't want any unnecessary output when not outputting
+    # normally or outputting to a file.
+    if format_ != "normal" or output:
         quiet = True
+        plain = True
 
     has_errors = False
 
@@ -195,7 +201,7 @@ def cli(
             has_errors = True
         with smart_open(output) as f:
             if format_ == "normal":
-                f.write(checks_to_string(processed_config, quiet, color, prefix))
+                f.write(checks_to_string(processed_config, plain, color, prefix))
             elif format_ == "json":
                 json.dump(processed_config, f)
     elif input_path.is_dir():
@@ -216,11 +222,11 @@ def cli(
                     f.write(
                         style(
                             f"{'=' * 10} {key} {'=' * 10}\n",
-                            quiet=quiet,
+                            plain=plain,
                             bold=True,
                         )
                     )
-                    f.write(checks_to_string(value, quiet, color, prefix))
+                    f.write(checks_to_string(value, plain, color, prefix))
 
             elif format_ == "json":
                 json.dump(processed_configs, f)
