@@ -77,8 +77,8 @@ def test_basic(state: str, check_tuple: typing.List[typing.Tuple[NOS, Check]]):
         # Checker instance)
         result = check_instance(configuration_file)
         if state == "good":
-            assert result is None
+            assert result is None, f"Failed for {configuration_file.name}"
         elif state == "faulty":
-            assert result is not None
+            assert result is not None, f"Failed for {configuration_file.name}"
 
         index += 1
