@@ -13,8 +13,7 @@ __all__ = [
     "check_password_hash_strength",
 ]
 
-from netlint.checks.utils import get_password_hash_algorithm
-from netlint.utils import NOS
+from netlint.checks.utils import get_password_hash_algorithm, NOS
 
 
 @Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS101")

@@ -2,7 +2,6 @@
 import contextlib
 import sys
 import typing
-from enum import Enum
 
 import click
 
@@ -29,25 +28,3 @@ def style(message: str, quiet: bool, **kwargs: typing.Any) -> str:
         return message
     else:
         return click.style(message, **kwargs)
-
-
-class NOS(Enum):
-    """Overview of different available NOSes."""
-
-    CISCO_IOS = "cisco_ios"
-    CISCO_NXOS = "cisco_nxos"
-
-    def __str__(self):
-        """Overwrite __str__ to prettify the documentation."""
-        return self.name
-
-
-def detect_nos(configuration: typing.List[str]) -> NOS:
-    """Automatically detect the NOS in the configuration.
-
-    Very rudimentary as of now, will get more complex support for more NOSes is added.
-    """
-    for line in configuration:
-        if "feature" in line:
-            return NOS.CISCO_NXOS
-    return NOS.CISCO_IOS

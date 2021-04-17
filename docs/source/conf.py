@@ -12,13 +12,11 @@
 #
 import os
 import sys
-from importlib import import_module
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-from netlint.checks.checker import Check, Checker
-from netlint.utils import NOS
+from netlint.checks.checker import Checker
 
 sys.path.insert(0, os.path.abspath("../../"))
 

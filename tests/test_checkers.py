@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from netlint.checks.checker import Checker, Check
-from netlint.utils import NOS
+from netlint.checks.utils import NOS
 
 CONFIG_DIR = Path(__file__).parent / "configurations"
 

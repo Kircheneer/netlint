@@ -6,9 +6,7 @@ from ciscoconfparse import CiscoConfParse
 
 from netlint.checks.checker import CheckResult, Checker
 
-from netlint.checks.utils import get_access_list_usage, get_access_list_definitions
-
-from netlint.utils import NOS
+from netlint.checks.utils import get_access_list_usage, get_access_list_definitions, NOS
 
 __all__ = ["check_default_snmp_communities", "check_unused_access_lists"]
 

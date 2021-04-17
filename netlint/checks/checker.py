@@ -2,7 +2,7 @@
 import functools
 import typing
 
-from netlint.utils import NOS
+from netlint.checks.utils import NOS
 
 
 class CheckResult(typing.NamedTuple):
