@@ -11,4 +11,4 @@ bogus_as_numbers += list(range(65536, 65551 + 1))  # RFC4893, RFC5398
 bad_hash_algorithms = [0, 5, 7]
 
 # Regex for acl definitions
-acl_regex = r"^ip(v6)?\saccess-list\s(standard|extended)"
+acl_regex = r"^ip(v6)?\saccess-list\sextended"

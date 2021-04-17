@@ -78,11 +78,17 @@ def get_access_list_usage(
 
 def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
     """Return all lines where access lists are defined."""
-    direct_definitions = config.find_lines(acl_regex)
+    # Definitions of extended ACLs
+    extended_acls = config.find_lines(acl_regex)
+
+    # Definitions of standard ACLs
+    standard_acls = config.find_lines(r"^access-list")
+
+    # Definition of reflexive ACLs
     reflected_definitions = config.find_children_w_parents(
         acl_regex, r"^.*reflect\s(\S+|\d+)"
     )
-    return direct_definitions + reflected_definitions
+    return extended_acls + standard_acls + reflected_definitions
 
 
 class NOS(Enum):
@@ -111,6 +117,8 @@ def get_name_from_acl_definition(acl: str) -> str:
     """Extract the ACL name from a ACL definition."""
     if "reflect" in acl:
         name = re.findall(r"^.*reflect\s(\S+)", acl)[0]
+    elif acl.startswith("access-list"):
+        _, name, _ = acl.split(maxsplit=2)
     else:
         _, _, _, name = acl.strip().split(" ", maxsplit=4)
     return name
