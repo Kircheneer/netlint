@@ -27,7 +27,8 @@ class CheckFunctionTuple(typing.NamedTuple):
 class Check:
     """Class to represent a check function.
 
-    Auto-generated when @Checker.register() is used on a function."""
+    Auto-generated when @Checker.register() is used on a function.
+    """
 
     def __init__(
         self, check_function: CheckFunction, apply_to: typing.List[NOS], name: str

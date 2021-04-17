@@ -8,6 +8,8 @@ from netlint.utils import NOS
 
 CONFIG_DIR = Path(__file__).parent / "configurations"
 
+# Build a list of tuples to allow for precise parametrization of the
+# test function.
 checks: typing.List[typing.Tuple[NOS, Check]] = []
 for nos, check_list in Checker.checks.items():
     for check in check_list:
@@ -23,6 +25,19 @@ def name_for_check_parameter(parameter: typing.List[typing.Tuple[NOS, Check]]) -
 @pytest.mark.parametrize("state", ["faulty", "good"])
 @pytest.mark.parametrize("check_tuple", checks, ids=name_for_check_parameter)
 def test_basic(state: str, check_tuple: typing.List[typing.Tuple[NOS, Check]]):
+    """Runs basic tests for checker functions.
+
+    This depends on the Checker class. All checks registered with Checker.register
+    will be processed by this test. The process goes as follows:
+    -   If the check applies to a single NOS, check
+        ``tests/configurations/$NOS/$CHECK_FUNCTION_NAME_(faulty|good).conf``
+        for the configuration file.
+    -   If the check applies to multiple NOSes, check
+        ``tests/configurations/$CHECK_FUNCTION_NAME_(faulty|good).conf``
+        for the configuration file.
+    -   Read the file, run the check against it, and check whether the output
+        corresponds to the state.
+    """
     nos_instance, check_instance = check_tuple
     config_suffix = f"_{state}.conf"
     configuration_file = None
