@@ -39,29 +39,46 @@ def test_basic(state: str, check_tuple: typing.List[typing.Tuple[NOS, Check]]):
         corresponds to the state.
     """
     nos_instance, check_instance = check_tuple
-    config_suffix = f"_{state}.conf"
-    configuration_file = None
-    if len(check_instance.apply_to) == 1:
-        # If the check only applies to a single NOS, use the NOS specific
-        # configurations folder
-        configuration_file = (
-            CONFIG_DIR
-            / str(nos_instance).lower()  # noqa: W503
-            / (check_instance.check_function.__name__ + config_suffix)  # noqa: W503
+    nos_dir = CONFIG_DIR / str(nos_instance).lower()
+    check_name = check_instance.check_function.__name__
+    configuration_name_template = "{check}_{state}-{index}.conf"
+
+    # Execute while new configurations files remain (iterating over the index
+    # in the filename of the configuration files.
+    index = 0
+    while True:
+        filename = configuration_name_template.format(
+            check=check_name, state=state, index=index
         )
-    elif len(check_instance.apply_to) >= 1:
-        # If the check applies to multiple NOSes, use the parent configurations folder
-        configuration_file = CONFIG_DIR / (
-            check_instance.check_function.__name__ + config_suffix
-        )
-    else:
-        AssertionError(
-            f"Check {check_instance.check_function.__name__} doesn't apply to any NOS"
-        )
-    # The checker is ran right here (through the __call__ function of the
-    # Checker instance)
-    result = check_instance(configuration_file)
-    if state == "good":
-        assert result is None
-    elif state == "faulty":
-        assert result is not None
+        configuration_file = None
+        if len(check_instance.apply_to) == 1:
+            # If the check only applies to a single NOS, use the NOS specific
+            # configurations folder
+            configuration_file = nos_dir / filename
+        elif len(check_instance.apply_to) >= 1:
+            # If the check applies to multiple NOSes, use the parent
+            # configurations folder
+            configuration_file = CONFIG_DIR / filename
+        else:
+            AssertionError(f"Check {check_name} doesn't apply to any NOS")
+
+        if not configuration_file.is_file():
+            if index == 0:
+                # Fail if there is not a single configuration file for any given check
+                pytest.fail(
+                    f"No configuration file {configuration_file} found for"
+                    f"check {check_name}."
+                )
+            else:
+                # If one configuration file was already processed, finish the test
+                return
+
+        # The checker is ran right here (through the __call__ function of the
+        # Checker instance)
+        result = check_instance(configuration_file)
+        if state == "good":
+            assert result is None
+        elif state == "faulty":
+            assert result is not None
+
+        index += 1
