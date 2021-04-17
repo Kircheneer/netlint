@@ -13,7 +13,11 @@ from netlint.checks.utils import (
     get_name_from_acl_definition,
 )
 
-__all__ = ["check_default_snmp_communities", "check_unused_access_lists"]
+__all__ = [
+    "check_default_snmp_communities",
+    "check_unused_access_lists",
+    "check_used_but_unconfigured_access_lists",
+]
 
 
 @Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR101")
