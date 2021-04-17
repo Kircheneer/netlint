@@ -85,8 +85,8 @@ def configure(
     "--format",
     "format_",
     default="normal",
-    type=click.Choice(["json", "normal"]),
-    help="The format of the output data (--format json implies --quiet).",
+    type=click.Choice(["json", "normal", "csv"]),
+    help="The format of the output data.",
 )
 @click.option(
     "--select",
