@@ -91,7 +91,7 @@ class NOS(Enum):
     CISCO_IOS = "cisco_ios"
     CISCO_NXOS = "cisco_nxos"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Overwrite __str__ to prettify the documentation."""
         return self.name
 
