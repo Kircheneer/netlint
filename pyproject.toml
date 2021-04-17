@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "netlint"
-version = "0.1.0"
+version = "0.1.2"
 description = "Performs static analysis on network device configuration files."
 authors = ["Leo Kirchner <leo@kirchne.red>"]
 license = "GPLv3"
