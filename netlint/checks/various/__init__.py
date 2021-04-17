@@ -6,7 +6,12 @@ from ciscoconfparse import CiscoConfParse
 
 from netlint.checks.checker import CheckResult, Checker
 
-from netlint.checks.utils import get_access_list_usage, get_access_list_definitions, NOS
+from netlint.checks.utils import (
+    get_access_list_usage,
+    get_access_list_definitions,
+    NOS,
+    get_name_from_acl_definition,
+)
 
 __all__ = ["check_default_snmp_communities", "check_unused_access_lists"]
 
@@ -42,10 +47,7 @@ def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[Check
     access_lists = get_access_list_definitions(parsed_config)
     unused_acls = []
     for acl in access_lists:
-        if "reflect" in acl:
-            name = re.findall(r"^.*reflect\s(\S+)", acl)[0]
-        else:
-            _, _, _, name = acl.strip().split(" ", maxsplit=4)
+        name = get_name_from_acl_definition(acl)
         usages = get_access_list_usage(parsed_config, name=name)
         if not usages:
             unused_acls.append(acl)
@@ -72,7 +74,7 @@ def check_used_but_unconfigured_access_lists(
     defined_access_lists = []
     undefined_but_used_access_lists = []
     for definition in access_list_definitions:
-        _, _, _, name = definition.split(" ", maxsplit=4)
+        name = get_name_from_acl_definition(definition)
         defined_access_lists.append(name)
     for usage in access_list_usages:
         # Get acl name/number from the configuration line for packet filtering usages

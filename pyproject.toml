@@ -51,7 +51,7 @@ flake8-docstrings = "^1.6.0"
 docs = ["sphinx", "sphinx_rtd_theme", "m2r2", "spinx-click"]
 
 [tool.poetry.scripts]
-netlint = 'netlint.main:cli'
+netlint = 'netlint.cli.main:cli'
 
 [tool.netlint]
 
