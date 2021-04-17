@@ -60,9 +60,14 @@ def check_used_but_unconfigured_access_lists(
         _, _, _, name = definition.split(" ", maxsplit=4)
         defined_access_lists.append(name)
     for usage in access_list_usages:
-        # Get acl name/number from the configuration line
-        acl = re.findall(r"access-(class|group)\s(\S+|\d+)", usage)[0][1]
-        if acl not in defined_access_lists:
+        # Get acl name/number from the configuration line for packet filtering usages
+        acl_in_filtering = re.findall(r"access-(class|group)\s(\S+|\d+)", usage)
+        if acl_in_filtering and acl_in_filtering[0][1] not in defined_access_lists:
+            undefined_but_used_access_lists.append(usage)
+
+        # Get acl name/number from the configuration line for route-map usages
+        acl_in_route_map = re.findall(r"\s+match\sip\s\S+\s(\S+|\d+)", usage)
+        if acl_in_route_map and acl_in_route_map[0][1] not in defined_access_lists:
             undefined_but_used_access_lists.append(usage)
     if undefined_but_used_access_lists:
         return CheckResult(
