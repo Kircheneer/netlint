@@ -50,7 +50,19 @@ def get_access_list_usage(
         r"^route-map", access_list_usage_in_route_map_regex
     )
 
-    return access_list_usage_in_filtering + access_list_usage_in_route_map
+    # Find all access lists used in rate-limiting
+    access_list_usage_in_rate_limiting_regex = r"^\s+rate-limit\soutput\saccess-group"
+    if name:
+        access_list_usage_in_rate_limiting_regex += " " + name
+    access_list_usage_in_rate_limiting = config.find_children_w_parents(
+        r"^interface", access_list_usage_in_rate_limiting_regex
+    )
+
+    return (
+        access_list_usage_in_filtering
+        + access_list_usage_in_route_map
+        + access_list_usage_in_rate_limiting
+    )
 
 
 def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
