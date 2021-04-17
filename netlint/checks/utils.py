@@ -105,3 +105,12 @@ def detect_nos(configuration: typing.List[str]) -> NOS:
         if "feature" in line:
             return NOS.CISCO_NXOS
     return NOS.CISCO_IOS
+
+
+def get_name_from_acl_definition(acl: str) -> str:
+    """Extract the ACL name from a ACL definition."""
+    if "reflect" in acl:
+        name = re.findall(r"^.*reflect\s(\S+)", acl)[0]
+    else:
+        _, _, _, name = acl.strip().split(" ", maxsplit=4)
+    return name
