@@ -13,7 +13,7 @@ __all__ = [
 ]
 
 from netlint.checks.constants import bogus_as_numbers
-from netlint.utils import NOS
+from netlint.checks.utils import NOS
 
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS101")

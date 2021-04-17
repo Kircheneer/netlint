@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from netlint.main import cli
+from netlint.cli.main import cli
 
 TESTS_DIR = Path(__file__).parent
 

@@ -1,5 +1,5 @@
 """Enable python -m netlint."""
-from netlint.main import cli
+from netlint.cli.main import cli
 
 
 if __name__ == "__main__":

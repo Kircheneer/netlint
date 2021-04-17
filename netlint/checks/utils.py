@@ -1,6 +1,7 @@
 """Configuration checking utitilites."""
 import re
 import typing
+from enum import Enum
 
 from ciscoconfparse import CiscoConfParse
 
@@ -55,3 +56,25 @@ def get_access_list_usage(
 def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
     """Return all lines where access lists are defined."""
     return config.find_lines(r"^ip(v6)?\saccess-list\s(standard|extended)")
+
+
+class NOS(Enum):
+    """Overview of different available NOSes."""
+
+    CISCO_IOS = "cisco_ios"
+    CISCO_NXOS = "cisco_nxos"
+
+    def __str__(self):
+        """Overwrite __str__ to prettify the documentation."""
+        return self.name
+
+
+def detect_nos(configuration: typing.List[str]) -> NOS:
+    """Automatically detect the NOS in the configuration.
+
+    Very rudimentary as of now, will get more complex support for more NOSes is added.
+    """
+    for line in configuration:
+        if "feature" in line:
+            return NOS.CISCO_NXOS
+    return NOS.CISCO_IOS

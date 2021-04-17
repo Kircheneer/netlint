@@ -7,8 +7,9 @@ import click
 import toml
 
 from netlint.checks.checker import Checker
-from netlint.types import JSONOutputDict
-from netlint.utils import smart_open, style, detect_nos, NOS
+from netlint.cli.types import JSONOutputDict
+from netlint.cli.utils import smart_open, style
+from netlint.checks.utils import NOS, detect_nos
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_CONFIG = "pyproject.toml"
