@@ -28,6 +28,18 @@ Check for presence of default SNMP community strings.
 
 Check for any ACLs that are configured but never used.
 
+    Potential usages are:
+    * Packet filtering
+    * Rate limiting
+    * Route maps
+    
+
 **VAR103**
 
 Check for any ACLs that are used but never configured.
+
+    Potential usages are:
+    * Packet filtering
+    * Rate limiting
+    * Route maps
+    
