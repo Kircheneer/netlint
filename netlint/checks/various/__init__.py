@@ -64,7 +64,8 @@ def check_used_but_unconfigured_access_lists(
     Potential usages are:
     * Packet filtering
     * Rate limiting
-    * Route maps"""
+    * Route maps
+    """
     parsed_config = CiscoConfParse(config)
     access_list_usages = get_access_list_usage(parsed_config)
     access_list_definitions = get_access_list_definitions(parsed_config)
