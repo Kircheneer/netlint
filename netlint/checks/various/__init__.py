@@ -31,7 +31,13 @@ def check_default_snmp_communities(
 
 @Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR102")
 def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[CheckResult]:
-    """Check for any ACLs that are configured but never used."""
+    """Check for any ACLs that are configured but never used.
+
+    Potential usages are:
+    * Packet filtering
+    * Rate limiting
+    * Route maps
+    """
     parsed_config = CiscoConfParse(config)
     access_lists = get_access_list_definitions(parsed_config)
     unused_acls = []
@@ -50,7 +56,12 @@ def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[Check
 def check_used_but_unconfigured_access_lists(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
-    """Check for any ACLs that are used but never configured."""
+    """Check for any ACLs that are used but never configured.
+
+    Potential usages are:
+    * Packet filtering
+    * Rate limiting
+    * Route maps"""
     parsed_config = CiscoConfParse(config)
     access_list_usages = get_access_list_usage(parsed_config)
     access_list_definitions = get_access_list_definitions(parsed_config)
