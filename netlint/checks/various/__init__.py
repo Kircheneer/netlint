@@ -39,6 +39,7 @@ def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[Check
     """Check for any ACLs that are configured but never used.
 
     Potential usages are:
+
     * Packet filtering
     * Rate limiting
     * Route maps
@@ -64,6 +65,7 @@ def check_used_but_unconfigured_access_lists(
     """Check for any ACLs that are used but never configured.
 
     Potential usages are:
+
     * Packet filtering
     * Rate limiting
     * Route maps

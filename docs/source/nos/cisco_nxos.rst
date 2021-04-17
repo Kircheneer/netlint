@@ -29,6 +29,7 @@ Check for presence of default SNMP community strings.
 Check for any ACLs that are configured but never used.
 
     Potential usages are:
+
     * Packet filtering
     * Rate limiting
     * Route maps
