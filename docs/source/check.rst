@@ -5,6 +5,9 @@ This section explains how to implement checks. This can be both applied
 to development in the core ``netlint`` repository as well as external
 collections of checks.
 
+Implementation
+--------------
+
 The ``Checker`` class implements a decorator to decorate checks
 with. That decorator does two things:
 
@@ -26,3 +29,18 @@ In practice that might look like this::
                   lines=[line]
               )
       return None
+
+Tests
+-----
+
+Your new checker will automatically be registered for the basic
+pytest test. Put a configuration that does not contain the thing
+your are checking for at
+``tests/configurations/$NOS/$CHECK_NAME_good.conf``
+and one that does contain it at
+``tests/configurations/$NOS/$CHECK_NAME_faulty.conf``.
+
+.. NOTE::
+   If your check has ``apply_to`` set to more than one NOS, put
+   the configuration files directly at ``tests/configurations``.
+
