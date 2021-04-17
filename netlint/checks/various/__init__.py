@@ -42,7 +42,10 @@ def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[Check
     access_lists = get_access_list_definitions(parsed_config)
     unused_acls = []
     for acl in access_lists:
-        _, _, _, name = acl.split(" ", maxsplit=4)
+        if "reflect" in acl:
+            name = re.findall(r"^.*reflect\s(\S+)", acl)[0]
+        else:
+            _, _, _, name = acl.strip().split(" ", maxsplit=4)
         usages = get_access_list_usage(parsed_config, name=name)
         if not usages:
             unused_acls.append(acl)
