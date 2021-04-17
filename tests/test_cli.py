@@ -15,7 +15,7 @@ def test_lint_basic(quiet: bool, format_: str):
     """Basic test for CLI linting functionality."""
     runner = CliRunner()
 
-    cisco_ios_faulty_conf = TESTS_DIR / "cisco_ios" / "configurations" / "faulty.conf"
+    cisco_ios_faulty_conf = TESTS_DIR / "configurations" / "cisco_ios" / "faulty.conf"
 
     commands = [str(cisco_ios_faulty_conf)]
 
@@ -48,7 +48,7 @@ def test_select_exclude_exclusivity():
     """Test that --select and --exclude don't work together each other."""
     runner = CliRunner()
 
-    cisco_ios_faulty_conf = TESTS_DIR / "cisco_ios" / "configurations" / "faulty.conf"
+    cisco_ios_faulty_conf = TESTS_DIR / "configurations" / "cisco_ios" / "faulty.conf"
 
     result = runner.invoke(
         cli, [str(cisco_ios_faulty_conf), "--select", "ABC", "--exclude", "XYZ"]
