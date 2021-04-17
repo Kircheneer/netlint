@@ -27,7 +27,7 @@ Below is an example of how to use this based on one of the faulty test
 configurations (executed from the project root):
 
 ```
-$  netlint --nos cisco_ios tests/cisco_ios/configurations/faulty.conf
+$  netlint tests/configurations/cisco_ios/faulty.conf
 IOS101 Plaintext user passwords in configuration.
 -> username test password ing
 IOS102 HTTP server not disabled
