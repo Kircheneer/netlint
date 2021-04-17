@@ -34,35 +34,43 @@ def get_access_list_usage(
     :param name: Optionally filter for a specific ACL name.
     :return: A list of configuration lines that use this ACL.
     """
+    all_usages = []
+
     # Find all access lists used in packet filtering
     access_list_usage_in_filtering_regex = r"(ip)? access-(group|class)"
     if name:
         access_list_usage_in_filtering_regex += " " + name
-    access_list_usage_in_filtering = config.find_lines(
-        access_list_usage_in_filtering_regex
+    all_usages.extend(config.find_lines(access_list_usage_in_filtering_regex))
+    access_list_usage_in_filtering_evaluate_regex = r"^\s+evaluate"
+    if name:
+        access_list_usage_in_filtering_evaluate_regex += " " + name
+    all_usages.extend(
+        config.find_children_w_parents(
+            r"ip(v6)?\saccess-list", access_list_usage_in_filtering_evaluate_regex
+        )
     )
 
     # Find all access lists used in route-maps
     access_list_usage_in_route_map_regex = r"^\s+match ip \S+"
     if name:
         access_list_usage_in_route_map_regex += " " + name
-    access_list_usage_in_route_map = config.find_children_w_parents(
-        r"^route-map", access_list_usage_in_route_map_regex
+    all_usages.extend(
+        config.find_children_w_parents(
+            r"^route-map", access_list_usage_in_route_map_regex
+        )
     )
 
     # Find all access lists used in rate-limiting
     access_list_usage_in_rate_limiting_regex = r"^\s+rate-limit\soutput\saccess-group"
     if name:
         access_list_usage_in_rate_limiting_regex += " " + name
-    access_list_usage_in_rate_limiting = config.find_children_w_parents(
-        r"^interface", access_list_usage_in_rate_limiting_regex
+    all_usages.extend(
+        config.find_children_w_parents(
+            r"^interface", access_list_usage_in_rate_limiting_regex
+        )
     )
 
-    return (
-        access_list_usage_in_filtering
-        + access_list_usage_in_route_map
-        + access_list_usage_in_rate_limiting
-    )
+    return all_usages
 
 
 def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
