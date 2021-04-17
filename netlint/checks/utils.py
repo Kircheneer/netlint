@@ -5,6 +5,8 @@ from enum import Enum
 
 from ciscoconfparse import CiscoConfParse
 
+from netlint.checks.constants import acl_regex
+
 
 def get_password_hash_algorithm(config_line: str) -> typing.Optional[int]:
     """Extract the number of the password hash algorithm from a config line.
@@ -46,7 +48,8 @@ def get_access_list_usage(
         access_list_usage_in_filtering_evaluate_regex += " " + name
     all_usages.extend(
         config.find_children_w_parents(
-            r"ip(v6)?\saccess-list", access_list_usage_in_filtering_evaluate_regex
+            r"ip(v6)?\saccess-list\sextended",
+            access_list_usage_in_filtering_evaluate_regex,
         )
     )
 
@@ -75,7 +78,11 @@ def get_access_list_usage(
 
 def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
     """Return all lines where access lists are defined."""
-    return config.find_lines(r"^ip(v6)?\saccess-list\s(standard|extended)")
+    direct_definitions = config.find_lines(acl_regex)
+    reflected_definitions = config.find_children_w_parents(
+        acl_regex, r"^.*reflect\s(\S+|\d+)"
+    )
+    return direct_definitions + reflected_definitions
 
 
 class NOS(Enum):
