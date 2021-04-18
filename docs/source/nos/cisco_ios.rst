@@ -40,6 +40,7 @@ Check for any ACLs that are configured but never used.
 Check for any ACLs that are used but never configured.
 
     Potential usages are:
+
     * Packet filtering
     * Rate limiting
     * Route maps
