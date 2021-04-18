@@ -101,6 +101,15 @@ class NOS(Enum):
         """Overwrite __str__ to prettify the documentation."""
         return self.name
 
+    @staticmethod
+    def from_napalm(driver: str) -> "NOS":
+        if driver == "ios":
+            return NOS.CISCO_IOS
+        elif driver == "nxos":
+            return NOS.CISCO_NXOS
+        else:
+            raise ValueError(f"No NOS mapping found for NAPALM driver name {driver}.")
+
 
 def detect_nos(configuration: typing.List[str]) -> NOS:
     """Automatically detect the NOS in the configuration.
