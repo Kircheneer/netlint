@@ -17,7 +17,7 @@ def test_lint_basic(plain: bool, format_: str):
 
     cisco_ios_faulty_conf = TESTS_DIR / "configurations" / "cisco_ios" / "faulty.conf"
 
-    commands = [str(cisco_ios_faulty_conf)]
+    commands = ["-i", str(cisco_ios_faulty_conf)]
 
     if plain:
         commands.insert(0, "--plain")
@@ -51,7 +51,7 @@ def test_select_exclude_exclusivity():
     cisco_ios_faulty_conf = TESTS_DIR / "configurations" / "cisco_ios" / "faulty.conf"
 
     result = runner.invoke(
-        cli, [str(cisco_ios_faulty_conf), "--select", "ABC", "--exclude", "XYZ"]
+        cli, ["-i", str(cisco_ios_faulty_conf), "--select", "ABC", "--exclude", "XYZ"]
     )
 
     assert "mutually exclusive" in result.stdout

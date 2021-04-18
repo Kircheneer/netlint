@@ -4,12 +4,14 @@ import typing
 from pathlib import Path
 
 import click
+import napalm  # type: ignore
 import toml
+from rich.console import Console
 
 from netlint.checks.checker import Checker
-from netlint.cli.types import JSONOutputDict
-from netlint.cli.utils import smart_open, style
 from netlint.checks.utils import NOS, detect_nos
+from netlint.cli.types import JSONOutputDict
+from netlint.cli.utils import smart_open, style, optional
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 DEFAULT_CONFIG = "pyproject.toml"
@@ -53,9 +55,13 @@ def configure(
         return
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, no_args_is_help=True)  # type: ignore
-@click.argument(
-    "path",
+@click.group(
+    invoke_without_command=True, context_settings=CONTEXT_SETTINGS, no_args_is_help=True
+)  # type: ignore
+@click.option(
+    "-i",
+    "--input",
+    "input_path",
     type=click.Path(
         exists=True, file_okay=True, dir_okay=True, readable=True, resolve_path=True
     ),
@@ -133,7 +139,7 @@ def configure(
 @click.pass_context
 def cli(
     ctx: click.Context,
-    path: str,
+    input_path: typing.Optional[str],
     glob: str,
     prefix: str,
     output: typing.Optional[str],
@@ -147,6 +153,8 @@ def cli(
     exit_zero: bool,
 ) -> None:
     """Perform static analysis on network device configuration files."""
+    ctx.ensure_object(dict)
+
     if select and exclude:
         click.echo("Error: --select and --exclude are mutually exclusive.")
         ctx.exit(-1)
@@ -157,20 +165,40 @@ def cli(
         quiet = True
         plain = True
 
-    has_errors = False
+    # Save the settings into the context
+    ctx.obj["quiet"] = quiet
+    ctx.obj["plain"] = plain
+    ctx.obj["color"] = color
+    ctx.obj["prefix"] = prefix
+    ctx.obj["output"] = output
+    ctx.obj["format"] = format_
+    ctx.obj["checker"] = Checker()
+    ctx.obj["console"] = Console()
 
-    checker_instance = Checker()
+    # Abort execution of the group if there is a subcommand
+    if ctx.invoked_subcommand is not None:
+        return
+
+    has_errors = False
 
     configurations: typing.Dict[str, typing.List[str]] = {"default": []}
 
-    input_path = Path(path)
+    if not input_path:
+        click.echo(
+            "Error: You need to pass -i/--input if you aren't using a"
+            "subcommand to supply the configuration."
+        )
+        ctx.exit(-1)
+
+    path = Path(input_path)
+
     nos_mapping: typing.Dict[str, NOS] = {}
-    if input_path.is_file():
-        with open(input_path) as f:
+    if path.is_file():
+        with open(path) as f:
             configurations["default"] = f.readlines()
         nos_mapping["default"] = detect_nos(configurations["default"])
-    elif input_path.is_dir():
-        path_items = input_path.glob(glob)
+    elif path.is_dir():
+        path_items = path.glob(glob)
         for item in path_items:
             dict_key = str(item)
             with open(item) as f:
@@ -179,55 +207,50 @@ def cli(
 
     if select:
         selected_checks = []
-        for check in checker_instance.checks[nos_mapping["default"]]:
+        for check in ctx.obj["checker"].checks[nos_mapping["default"]]:
             if check.name in select.split(","):
                 selected_checks.append(check)
-        checker_instance.checks[nos_mapping["default"]] = selected_checks
+        ctx.obj["checker"].checks[nos_mapping["default"]] = selected_checks
     elif exclude:
         excluded_checks = []
         # Iterate over each unique NOS
         for nos in set(nos_mapping.values()):
-            for check in checker_instance.checks[nos]:
+            for check in ctx.obj["checker"].checks[nos]:
                 if check.name in exclude.split(","):
                     excluded_checks.append(check)
         for check in excluded_checks:
-            checker_instance.checks[nos_mapping["default"]].remove(check)
+            ctx.obj["checker"].checks[nos_mapping["default"]].remove(check)
 
-    if input_path.is_file():
+    if path.is_file():
         processed_config = check_config(
-            checker_instance, configurations["default"], nos_mapping["default"]
+            ctx.obj["checker"], configurations["default"], nos_mapping["default"]
         )
         if processed_config:
             has_errors = True
-        with smart_open(output) as f:
-            if format_ == "normal":
-                f.write(checks_to_string(processed_config, plain, color, prefix))
-            elif format_ == "json":
-                json.dump(processed_config, f)
-    elif input_path.is_dir():
-        path_items = input_path.glob(glob)
+        write_output(ctx, processed_config)
+    elif path.is_dir():
+        path_items = path.glob(glob)
         processed_configs: typing.Dict[str, JSONOutputDict] = {}
         for item in path_items:
             processed_configs[str(item)] = check_config(
-                checker_instance, configurations[str(item)], nos_mapping[str(item)]
+                ctx.obj["checker"], configurations[str(item)], nos_mapping[str(item)]
             )
         if processed_configs:
             has_errors = True
         with smart_open(output) as f:
             if format_ == "normal":
                 for key, value in processed_configs.items():
-                    if not value:
-                        f.write("\n")  # Newline
-                        continue
+                    # if not value:
+                    #    f.write("\n")  # Newline
+                    #    continue
                     f.write(
                         style(
-                            f"{'=' * 10} {key} {'=' * 10}\n",
+                            f"{'=' * 10} {key}\n",
                             plain=plain,
                             bold=True,
                         )
                     )
                     f.write(checks_to_string(value, plain, color, prefix))
-
             elif format_ == "json":
                 json.dump(processed_configs, f)
 
@@ -238,6 +261,63 @@ def cli(
         ctx.exit(-1)
     else:
         ctx.exit(0)
+
+
+@cli.command()
+@click.pass_context
+@click.option(
+    "-d",
+    "--driver",
+    "driver_name",
+    type=str,
+    help="Name of the NAPALM driver to connect with.",
+)
+@click.option("-u", "--username", prompt=True)
+@click.option("-p", "--password", prompt=True, hide_input=True)
+@click.argument("hostname", type=str)
+def get(
+    ctx: click.Context, driver_name: str, username: str, password: str, hostname: str
+) -> None:
+    """Get live configuration off of devices."""
+    driver = napalm.get_network_driver(driver_name)
+    status_color = "[bold green]" if ctx.obj["color"] else ""
+    with optional(
+        not ctx.obj["plain"] or ctx.obj["quiet"],
+        ctx.obj["console"].status(f"{status_color}Retrieving the configuration..."),
+    ) as _:
+        with driver(
+            hostname=hostname, username=username, password=password
+        ) as connection:
+            configuration = connection.get_config(retrieve="running")["running"]
+    processed_config = check_config(
+        ctx.obj["checker"], configuration.splitlines(), NOS.from_napalm(driver_name)
+    )
+
+    write_output(ctx, processed_config)
+
+    if not processed_config and not ctx.obj["quiet"]:
+        click.secho("No problems found!\n", bold=True)
+
+
+def write_output(ctx: click.Context, processed_config: JSONOutputDict) -> None:
+    """Write the output for a processed configuration.
+
+    :param ctx: The click context where ctx.obj contains the necessary settings.
+    :param processed_config: The Check output dictionary.
+    :return: None
+    """
+    with smart_open(ctx.obj["output"]) as f:
+        if ctx.obj["format"] == "normal":
+            f.write(
+                checks_to_string(
+                    processed_config,
+                    ctx.obj["plain"],
+                    ctx.obj["color"],
+                    ctx.obj["prefix"],
+                )
+            )
+        elif ctx.obj["format"] == "json":
+            json.dump(processed_config, f)
 
 
 def check_config(
@@ -264,15 +344,19 @@ def checks_to_string(
     """Convert a check result to its string representation."""
     return_value = ""
     for check, result in check_result_dict.items():
+        lines = [line.strip() for line in result["lines"]]
         return_value += style(check, plain, bold=True)
         return_value += " " + result["text"] + "\n"
         return_value += style(
-            prefix + prefix.join(result["lines"]),
+            prefix + f"\n{prefix}".join(lines),
             plain,
             fg="red" if color else None,
         )
+        return_value += "\n"
+    if not return_value:
+        return_value = click.style("No problems found!", bold=not plain) + "\n"
     return return_value
 
 
 if __name__ == "__main__":
-    cli()
+    cli(obj={})

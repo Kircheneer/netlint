@@ -28,3 +28,14 @@ def style(message: str, plain: bool, **kwargs: typing.Any) -> str:
         return message
     else:
         return click.style(message, **kwargs)
+
+
+@contextlib.contextmanager
+def optional(
+    condition: bool, context_manager: typing.ContextManager
+) -> typing.Generator:
+    if condition:
+        with context_manager:
+            yield
+    else:
+        yield
