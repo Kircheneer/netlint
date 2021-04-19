@@ -103,6 +103,7 @@ class NOS(Enum):
 
     @staticmethod
     def from_napalm(driver: str) -> "NOS":
+        """Convert the NAPALM driver name to a NOS instance."""
         if driver == "ios":
             return NOS.CISCO_IOS
         elif driver == "nxos":
