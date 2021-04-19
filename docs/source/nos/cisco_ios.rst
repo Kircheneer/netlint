@@ -4,27 +4,70 @@ CISCO_IOS
 All checks applying to this NOS (including ones applying to multiple).
 
 
-**IOS101**
+IOS101
+------
 
 Check if there are any plaintext passwords in the configuration.
 
-**IOS102**
+**Tags**
+
+
+* Security
+
+IOS102
+------
 
 Check if the http server is enabled.
 
-**IOS103**
+**Tags**
+
+
+* Security
+* Opinionated
+
+IOS103
+------
 
 Check for authentication on the console line.
 
-**IOS104**
+**Tags**
+
+
+* Security
+* Opinionated
+
+IOS104
+------
 
 Check if strong password hash algorithms were used.
 
-**VAR101**
+**Tags**
+
+
+* Security
+
+IOS105
+------
+
+Check if the switchport mode matches all config commands per interface.
+
+**Tags**
+
+
+* Hygiene
+
+VAR101
+------
 
 Check for presence of default SNMP community strings.
 
-**VAR102**
+**Tags**
+
+
+* Security
+
+VAR102
+------
 
 Check for any ACLs that are configured but never used.
 
@@ -35,7 +78,13 @@ Check for any ACLs that are configured but never used.
     * Route maps
     
 
-**VAR103**
+**Tags**
+
+
+* Hygiene
+
+VAR103
+------
 
 Check for any ACLs that are used but never configured.
 
@@ -45,3 +94,9 @@ Check for any ACLs that are used but never configured.
     * Rate limiting
     * Route maps
     
+
+**Tags**
+
+
+* Hygiene
+* Security
