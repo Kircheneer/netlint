@@ -40,7 +40,9 @@ def check_plaintext_passwords(config: typing.List[str]) -> typing.Optional[Check
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS102", tags=[Tag.SECURITY, Tag.OPINIONATED])
+@Checker.register(
+    apply_to=[NOS.CISCO_IOS], name="IOS102", tags=[Tag.SECURITY, Tag.OPINIONATED]
+)
 def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the http server is enabled."""
     parsed_config = CiscoConfParse(config)
@@ -51,7 +53,9 @@ def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResul
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS103", tags=[Tag.SECURITY, Tag.OPINIONATED])
+@Checker.register(
+    apply_to=[NOS.CISCO_IOS], name="IOS103", tags=[Tag.SECURITY, Tag.OPINIONATED]
+)
 def check_console_password(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for authentication on the console line."""
     parsed_config = CiscoConfParse(config)
