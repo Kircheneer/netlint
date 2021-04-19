@@ -13,10 +13,10 @@ __all__ = [
     "check_password_hash_strength",
 ]
 
-from netlint.checks.utils import get_password_hash_algorithm, NOS
+from netlint.checks.utils import get_password_hash_algorithm, NOS, Tag
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS101")
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS101", tags=[Tag.SECURITY])
 def check_plaintext_passwords(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if there are any plaintext passwords in the configuration."""
     parsed_config = CiscoConfParse(config)
@@ -40,7 +40,7 @@ def check_plaintext_passwords(config: typing.List[str]) -> typing.Optional[Check
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS102")
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS102", tags=[Tag.SECURITY, Tag.OPINIONATED])
 def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the http server is enabled."""
     parsed_config = CiscoConfParse(config)
@@ -51,7 +51,7 @@ def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResul
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS103")
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS103", tags=[Tag.SECURITY, Tag.OPINIONATED])
 def check_console_password(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for authentication on the console line."""
     parsed_config = CiscoConfParse(config)
@@ -73,7 +73,7 @@ def check_console_password(config: typing.List[str]) -> typing.Optional[CheckRes
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS104")
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS104", tags=[Tag.SECURITY])
 def check_password_hash_strength(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
@@ -91,7 +91,7 @@ def check_password_hash_strength(
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS105")
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS105", tags=[Tag.HYGIENE])
 def check_switchport_trunk_config(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:

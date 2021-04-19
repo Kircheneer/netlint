@@ -10,7 +10,7 @@ from netlint.checks.utils import (
     get_access_list_usage,
     get_access_list_definitions,
     NOS,
-    get_name_from_acl_definition,
+    get_name_from_acl_definition, Tag,
 )
 
 __all__ = [
@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR101")
+@Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR101", tags=[Tag.SECURITY])
 def check_default_snmp_communities(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
@@ -38,7 +38,7 @@ def check_default_snmp_communities(
     return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR102")
+@Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR102", tags=[Tag.HYGIENE])
 def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for any ACLs that are configured but never used.
 
@@ -62,7 +62,7 @@ def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[Check
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR103")
+@Checker.register(apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR103", tags=[Tag.HYGIENE, Tag.SECURITY])
 def check_used_but_unconfigured_access_lists(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:

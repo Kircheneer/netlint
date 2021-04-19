@@ -70,7 +70,7 @@ def build_checker_docs(app) -> None:
         nos_template_file = env.get_template("checks.j2")
         rendered_template = nos_template_file.render(nos=str(nos), checks=checks)
 
-        with open(nos_dir / f"{str(nos)}.rst", "w") as f:
+        with open(nos_dir / f"{str(nos).lower()}.rst", "w") as f:
             f.write(rendered_template)
 
     index_template_file = env.get_template("checks_index.j2")

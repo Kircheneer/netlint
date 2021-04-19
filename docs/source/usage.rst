@@ -10,6 +10,7 @@ Configuration is available through
 
 * Command line parameters (see :doc:`/cli`)
 * The ``[tool.netlint]`` section of the ``pyproject.toml`` file
+
   * Available options mirror the command line parameters
   * The config file location is configurable with ``-c/--config``.
     If the name of the config file is not ``pyproject.toml`` the

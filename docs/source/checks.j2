@@ -4,7 +4,14 @@
 All checks applying to this NOS (including ones applying to multiple).
 
 {% for check in checks %}
-**{{ check.name }}**
+{{ check.name }}
+{{ "-" * check.name|length }}
 
 {{ check.function_doc }}
+
+**Tags**
+
+{% for tag in check.tags %}
+* {{ tag|capitalize }}
+{%- endfor %}
 {% endfor %}
