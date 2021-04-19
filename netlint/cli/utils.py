@@ -34,6 +34,7 @@ def style(message: str, plain: bool, **kwargs: typing.Any) -> str:
 def optional(
     condition: bool, context_manager: typing.ContextManager
 ) -> typing.Generator:
+    """Apply the content manager if condition evaluates to True."""
     if condition:
         with context_manager:
             yield

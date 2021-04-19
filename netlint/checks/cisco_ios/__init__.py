@@ -1,10 +1,10 @@
 """Checks for the Cisco IOS NOS."""
 import typing
 
-from ciscoconfparse import CiscoConfParse
+from ciscoconfparse import CiscoConfParse, re
 
-from netlint.checks.checker import CheckResult, Checker
 from netlint.checks import constants as c
+from netlint.checks.checker import CheckResult, Checker
 
 __all__ = [
     "check_plaintext_passwords",
@@ -87,5 +87,33 @@ def check_password_hash_strength(
             bad_lines.append(line)
     if bad_lines:
         return CheckResult("Insecure hash algorithms in use.", lines=bad_lines)
+    else:
+        return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS105")
+def check_switchport_trunk_config(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check if the switchport mode matches all config commands per interface."""
+    parsed_config = CiscoConfParse(config)
+    interfaces = parsed_config.find_objects_w_child(
+        r"^interface", r"^\s+switchport mode trunk"
+    )
+    bad_lines = []
+    for interface in interfaces:
+        bad_lines_per_interface = [interface.text]
+        switchport_config_lines = list(
+            filter(lambda l: re.match(r"^\s+switchport", l.text), interface.children)
+        )
+        for line in switchport_config_lines:
+            if line.text.strip().startswith("switchport access"):
+                bad_lines_per_interface.append(line.text)
+        if len(bad_lines_per_interface) > 1:
+            bad_lines.extend(bad_lines_per_interface)
+    if bad_lines:
+        return CheckResult(
+            "Access port config present on trunk interfaces.", lines=bad_lines
+        )
     else:
         return None
