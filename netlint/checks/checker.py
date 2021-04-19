@@ -31,7 +31,11 @@ class Check:
     """
 
     def __init__(
-        self, check_function: CheckFunction, apply_to: typing.List[NOS], name: str, tags: typing.List[Tag]
+        self,
+        check_function: CheckFunction,
+        apply_to: typing.List[NOS],
+        name: str,
+        tags: typing.List[Tag],
     ) -> None:
         self.check_function = check_function
         self.apply_to = apply_to
@@ -75,7 +79,9 @@ class Checker:
             def wrapper(config: typing.List[str]) -> typing.Optional[CheckResult]:
                 return function(config)
 
-            check = Check(check_function=wrapper, apply_to=apply_to, name=name, tags=tags)
+            check = Check(
+                check_function=wrapper, apply_to=apply_to, name=name, tags=tags
+            )
             for nos in apply_to:
                 if nos in cls.checks:
                     cls.checks[nos].append(check)
