@@ -56,3 +56,39 @@ def test_select_exclude_exclusivity():
 
     assert "mutually exclusive" in result.stdout
     assert result.exception
+
+
+def test_config_file_not_found():
+    """Assert an exception is raised for a non-existant config file."""
+    runner = CliRunner()
+
+    result = runner.invoke(cli, ["-c", "non-existent.toml"])
+
+    assert isinstance(result.exception, SystemExit)
+
+
+def test_input_dir():
+    """Test if passing a dictionary for -i works."""
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli, ["-i", str(TESTS_DIR / "configurations"), "--exit-zero"]
+    )
+
+    assert not result.exception, result.exception
+
+
+def test_select_exclude(tmpdir: Path):
+    """Test if the --select option works correctly."""
+    runner = CliRunner()
+
+    config_file = tmpdir / "test.conf"
+
+    with open(config_file, "w") as f:
+        f.writelines(["ip http server"])
+
+    commands = ["-i", str(tmpdir), "--exclude", "IOS101", "--exit-zero"]
+
+    result = runner.invoke(cli, commands)
+
+    assert not result.exception, commands

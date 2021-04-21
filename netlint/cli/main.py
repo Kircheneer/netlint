@@ -218,8 +218,8 @@ def cli(
             for check in ctx.obj["checker"].checks[nos]:
                 if check.name in exclude.split(","):
                     excluded_checks.append(check)
-        for check in excluded_checks:
-            ctx.obj["checker"].checks[nos_mapping["default"]].remove(check)
+            for check in excluded_checks:
+                ctx.obj["checker"].checks[nos].remove(check)
 
     if path.is_file():
         processed_config = check_config(
