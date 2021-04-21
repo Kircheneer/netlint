@@ -2,7 +2,7 @@
 import re
 import typing
 
-from ciscoconfparse import CiscoConfParse, re
+from ciscoconfparse import CiscoConfParse
 
 from netlint.checks import constants as c
 from netlint.checks.checker import CheckResult, Checker
@@ -179,9 +179,7 @@ def check_used_but_unconfigured_access_lists(
         return None
 
 
-@Checker.register(
-    apply_to=[NOS.CISCO_IOS], name="IOS107", tags=[Tag.HYGIENE]
-)
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS107", tags=[Tag.HYGIENE])
 def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for any ACLs that are configured but never used.
 
