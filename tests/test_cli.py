@@ -91,4 +91,10 @@ def test_select_exclude(tmpdir: Path):
 
     result = runner.invoke(cli, commands)
 
-    assert not result.exception, commands
+    assert not result.exception
+
+    commands = ["-i", str(tmpdir), "--select", "IOS102", "--exit-zero"]
+
+    result = runner.invoke(cli, commands)
+
+    assert not result.exception

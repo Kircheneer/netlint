@@ -205,21 +205,22 @@ def cli(
                 configurations[dict_key] = f.readlines()
             nos_mapping[dict_key] = detect_nos(configurations[dict_key])
 
-    if select:
+    if select or exclude:
         selected_checks = []
-        for check in ctx.obj["checker"].checks[nos_mapping["default"]]:
-            if check.name in select.split(","):
-                selected_checks.append(check)
-        ctx.obj["checker"].checks[nos_mapping["default"]] = selected_checks
-    elif exclude:
         excluded_checks = []
-        # Iterate over each unique NOS
+        checks_to_select = select.split(",") if select else []
+        checks_to_exclude = exclude.split(",") if exclude else []
         for nos in set(nos_mapping.values()):
             for check in ctx.obj["checker"].checks[nos]:
-                if check.name in exclude.split(","):
+                if check.name in checks_to_select:
+                    selected_checks.append(check)
+                elif check.name in checks_to_exclude:
                     excluded_checks.append(check)
+            if checks_to_select:
+                ctx.obj["checker"].checks[nos] = selected_checks
             for check in excluded_checks:
-                ctx.obj["checker"].checks[nos].remove(check)
+                if check in ctx.obj["checker"].checks[nos]:
+                    ctx.obj["checker"].checks[nos].remove(check)
 
     if path.is_file():
         processed_config = check_config(
