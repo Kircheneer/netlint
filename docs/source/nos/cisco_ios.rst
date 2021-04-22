@@ -22,8 +22,8 @@ Check if the http server is enabled.
 **Tags**
 
 
-* Security
 * Opinionated
+* Security
 
 IOS103
 ------
@@ -33,8 +33,8 @@ Check for authentication on the console line.
 **Tags**
 
 
-* Security
 * Opinionated
+* Security
 
 IOS104
 ------

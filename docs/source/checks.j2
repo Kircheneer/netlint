@@ -3,7 +3,7 @@
 
 All checks applying to this NOS (including ones applying to multiple).
 
-{% for check in checks %}
+{% for check in checks|sort(attribute='name') %}
 {{ check.name }}
 {{ "-" * check.name|length }}
 
@@ -11,7 +11,7 @@ All checks applying to this NOS (including ones applying to multiple).
 
 **Tags**
 
-{% for tag in check.tags %}
+{% for tag in check.tags|sort(attribute='name') %}
 * {{ tag|capitalize }}
 {%- endfor %}
 {% endfor %}
