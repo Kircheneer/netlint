@@ -107,7 +107,7 @@ def configure(
     " (mutually exclusive with --select).",
 )
 @click.option(
-    "--exclude-tags", type=str, help="Comma-separated list of check names to include."
+    "--exclude-tags", type=str, help="Comma-separated list of check tags to exclude."
 )
 @click.option(
     "-q",
