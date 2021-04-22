@@ -56,17 +56,25 @@ Check if the switchport mode matches all config commands per interface.
 
 * Hygiene
 
-VAR101
+IOS106
 ------
 
-Check for presence of default SNMP community strings.
+Check for any ACLs that are used but never configured.
+
+    Potential usages are:
+
+    * Packet filtering
+    * Rate limiting
+    * Route maps
+    
 
 **Tags**
 
 
+* Hygiene
 * Security
 
-VAR102
+IOS107
 ------
 
 Check for any ACLs that are configured but never used.
@@ -83,20 +91,12 @@ Check for any ACLs that are configured but never used.
 
 * Hygiene
 
-VAR103
+VAR101
 ------
 
-Check for any ACLs that are used but never configured.
-
-    Potential usages are:
-
-    * Packet filtering
-    * Rate limiting
-    * Route maps
-    
+Check for presence of default SNMP community strings.
 
 **Tags**
 
 
-* Hygiene
 * Security

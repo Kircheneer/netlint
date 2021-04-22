@@ -16,7 +16,7 @@ __all__ = [
 
 
 @Checker.register(
-    apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR101", tags=[Tag.SECURITY]
+    apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR101", tags={Tag.SECURITY}
 )
 def check_default_snmp_communities(
     config: typing.List[str],

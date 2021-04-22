@@ -35,7 +35,7 @@ class Check:
         check_function: CheckFunction,
         apply_to: typing.List[NOS],
         name: str,
-        tags: typing.List[Tag],
+        tags: typing.Set[Tag],
     ) -> None:
         self.check_function = check_function
         self.apply_to = apply_to
@@ -60,7 +60,7 @@ class Checker:
 
     @classmethod
     def register(
-        cls, apply_to: typing.List[NOS], name: str, tags: typing.List[Tag]
+        cls, apply_to: typing.List[NOS], name: str, tags: typing.Set[Tag]
     ) -> typing.Callable[
         [typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]],
         Check,

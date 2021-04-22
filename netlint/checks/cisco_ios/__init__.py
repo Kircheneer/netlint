@@ -24,7 +24,7 @@ from netlint.checks.utils import (
 )
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS101", tags=[Tag.SECURITY])
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS101", tags={Tag.SECURITY})
 def check_plaintext_passwords(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if there are any plaintext passwords in the configuration."""
     parsed_config = CiscoConfParse(config)
@@ -49,7 +49,7 @@ def check_plaintext_passwords(config: typing.List[str]) -> typing.Optional[Check
 
 
 @Checker.register(
-    apply_to=[NOS.CISCO_IOS], name="IOS102", tags=[Tag.SECURITY, Tag.OPINIONATED]
+    apply_to=[NOS.CISCO_IOS], name="IOS102", tags={Tag.SECURITY, Tag.OPINIONATED}
 )
 def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the http server is enabled."""
@@ -62,7 +62,7 @@ def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResul
 
 
 @Checker.register(
-    apply_to=[NOS.CISCO_IOS], name="IOS103", tags=[Tag.SECURITY, Tag.OPINIONATED]
+    apply_to=[NOS.CISCO_IOS], name="IOS103", tags={Tag.SECURITY, Tag.OPINIONATED}
 )
 def check_console_password(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for authentication on the console line."""
@@ -85,7 +85,7 @@ def check_console_password(config: typing.List[str]) -> typing.Optional[CheckRes
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS104", tags=[Tag.SECURITY])
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS104", tags={Tag.SECURITY})
 def check_password_hash_strength(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
@@ -103,7 +103,7 @@ def check_password_hash_strength(
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS105", tags=[Tag.HYGIENE])
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS105", tags={Tag.HYGIENE})
 def check_switchport_trunk_config(
     config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
@@ -134,7 +134,7 @@ def check_switchport_trunk_config(
 @Checker.register(
     apply_to=[NOS.CISCO_IOS],
     name="IOS106",
-    tags=[Tag.HYGIENE, Tag.SECURITY],
+    tags={Tag.HYGIENE, Tag.SECURITY},
 )
 def check_used_but_unconfigured_access_lists(
     config: typing.List[str],
@@ -179,7 +179,7 @@ def check_used_but_unconfigured_access_lists(
         return None
 
 
-@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS107", tags=[Tag.HYGIENE])
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS107", tags={Tag.HYGIENE})
 def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for any ACLs that are configured but never used.
 
