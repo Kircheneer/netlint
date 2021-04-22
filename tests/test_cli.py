@@ -79,7 +79,7 @@ def test_input_dir():
 
 
 def test_select_exclude(tmpdir: Path):
-    """Test if the --select option works correctly."""
+    """Test if the --select/--exclude options works correctly."""
     runner = CliRunner()
 
     config_file = tmpdir / "test.conf"
@@ -94,6 +94,12 @@ def test_select_exclude(tmpdir: Path):
     assert not result.exception
 
     commands = ["-i", str(tmpdir), "--select", "IOS102", "--exit-zero"]
+
+    result = runner.invoke(cli, commands)
+
+    assert not result.exception
+
+    commands = ["-i", str(tmpdir), "--exclude-tags", "security", "--exit-zero"]
 
     result = runner.invoke(cli, commands)
 
