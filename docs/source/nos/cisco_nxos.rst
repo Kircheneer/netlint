@@ -12,8 +12,8 @@ Check if the telnet feature is explicitly enabled.
 **Tags**
 
 
-* Security
 * Opinionated
+* Security
 
 NXOS102
 -------
@@ -33,8 +33,8 @@ Check if the password strength check has been disabled.
 **Tags**
 
 
-* Security
 * Opinionated
+* Security
 
 NXOS104
 -------
