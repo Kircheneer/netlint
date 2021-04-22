@@ -201,3 +201,31 @@ def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[Check
         return CheckResult(text="Unused ACLs configured", lines=unused_acls)
     else:
         return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS108", tags={Tag.HYGIENE})
+def check_switchport_access_config(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check if the switchport mode matches all config commands per interface."""
+    parsed_config = CiscoConfParse(config)
+    interfaces = parsed_config.find_objects_w_child(
+        r"^interface", r"^\s+switchport mode access"
+    )
+    bad_lines = []
+    for interface in interfaces:
+        bad_lines_per_interface = [interface.text]
+        switchport_config_lines = list(
+            filter(lambda l: re.match(r"^\s+switchport", l.text), interface.children)
+        )
+        for line in switchport_config_lines:
+            if line.text.strip().startswith("switchport trunk"):
+                bad_lines_per_interface.append(line.text)
+        if len(bad_lines_per_interface) > 1:
+            bad_lines.extend(bad_lines_per_interface)
+    if bad_lines:
+        return CheckResult(
+            "Trunk port config present on access interfaces.", lines=bad_lines
+        )
+    else:
+        return None
