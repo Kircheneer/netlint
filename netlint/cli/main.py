@@ -9,7 +9,7 @@ import toml
 from rich.console import Console
 
 from netlint.checks.checker import Checker
-from netlint.checks.utils import NOS, detect_nos
+from netlint.checks.utils import NOS, detect_nos, Tag
 from netlint.cli.types import JSONOutputDict
 from netlint.cli.utils import smart_open, style, optional
 
@@ -107,6 +107,9 @@ def configure(
     " (mutually exclusive with --select).",
 )
 @click.option(
+    "--exclude-tags", type=str, help="Comma-separated list of check names to include."
+)
+@click.option(
     "-q",
     "--quiet",
     is_flag=True,
@@ -146,6 +149,7 @@ def cli(
     format_: str,
     select: typing.Optional[str],
     exclude: typing.Optional[str],
+    exclude_tags: typing.Optional[str],
     quiet: bool,
     color: bool,
     plain: bool,
@@ -188,7 +192,7 @@ def cli(
             "Error: You need to pass -i/--input if you aren't using a"
             "subcommand to supply the configuration."
         )
-        ctx.exit(-1)
+        ctx.exit(1)
 
     path = Path(input_path)
 
@@ -205,16 +209,26 @@ def cli(
                 configurations[dict_key] = f.readlines()
             nos_mapping[dict_key] = detect_nos(configurations[dict_key])
 
-    if select or exclude:
+    excluded_tags = set()
+    try:
+        if exclude_tags:
+            excluded_tags = {Tag[name.upper()] for name in exclude_tags.split(",")}
+    except KeyError as e:
+        click.echo(f"Error: Unknown tag key {e}. Aborting.", err=True)
+        ctx.exit(1)
+    if select or exclude or excluded_tags:
         selected_checks = []
         excluded_checks = []
-        checks_to_select = select.split(",") if select else []
-        checks_to_exclude = exclude.split(",") if exclude else []
+        checks_to_select = frozenset(select.split(",")) if select else set()
+        checks_to_exclude = frozenset(exclude.split(",")) if exclude else set()
         for nos in set(nos_mapping.values()):
             for check in ctx.obj["checker"].checks[nos]:
                 if check.name in checks_to_select:
                     selected_checks.append(check)
-                elif check.name in checks_to_exclude:
+                elif (
+                    excluded_tags.intersection(check.tags)
+                    or check.name in checks_to_exclude
+                ):
                     excluded_checks.append(check)
             if checks_to_select:
                 ctx.obj["checker"].checks[nos] = selected_checks
@@ -241,9 +255,6 @@ def cli(
         with smart_open(output) as f:
             if format_ == "normal":
                 for key, value in processed_configs.items():
-                    # if not value:
-                    #    f.write("\n")  # Newline
-                    #    continue
                     f.write(
                         style(
                             f"{'=' * 10} {key}\n",
@@ -251,12 +262,16 @@ def cli(
                             bold=True,
                         )
                     )
-                    f.write(checks_to_string(value, plain, color, prefix))
+                    results_as_string = checks_to_string(value, plain, color, prefix)
+                    if results_as_string:
+                        f.write(results_as_string)
+                    elif not quiet:
+                        click.secho("No problems found!", bold=not plain)
             elif format_ == "json":
                 json.dump(processed_configs, f)
 
     if not has_errors and not quiet:
-        click.secho("No problems found!", bold=True)
+        click.secho("No problems found!", bold=not plain)
 
     if has_errors and not exit_zero:
         ctx.exit(-1)
@@ -297,7 +312,7 @@ def get(
     write_output(ctx, processed_config)
 
     if not processed_config and not ctx.obj["quiet"]:
-        click.secho("No problems found!\n", bold=True)
+        click.secho("No problems found!\n", bold=not ctx.obj["plain"])
 
 
 def write_output(ctx: click.Context, processed_config: JSONOutputDict) -> None:
@@ -354,8 +369,6 @@ def checks_to_string(
             fg="red" if color else None,
         )
         return_value += "\n"
-    if not return_value:
-        return_value = click.style("No problems found!", bold=not plain) + "\n"
     return return_value
 
 
