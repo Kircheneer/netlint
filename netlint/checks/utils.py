@@ -101,6 +101,36 @@ class NOS(Enum):
         """Overwrite __str__ to prettify the documentation."""
         return self.name
 
+    @staticmethod
+    def from_napalm(driver: str) -> "NOS":
+        """Convert the NAPALM driver name to a NOS instance."""
+        if driver == "ios":
+            return NOS.CISCO_IOS
+        elif driver in ["nxos", "nxos_ssh"]:
+            return NOS.CISCO_NXOS
+        else:
+            raise ValueError(f"No NOS mapping found for NAPALM driver name {driver}.")
+
+
+class Tag(Enum):
+    """Tagging for checks."""
+
+    # Checks that are not universal best practices but useful
+    # most of the time.
+    OPINIONATED = "opinionated"
+
+    # Checks that are concerned with security aspects such as
+    # missing or weak encryption.
+    SECURITY = "security"
+
+    # Checks that are concerned with configuration hygiene, such
+    # as unused configuration items.
+    HYGIENE = "hygiene"
+
+    def __str__(self) -> str:
+        """Overwrite __str__ to prettify the documentation."""
+        return self.name
+
 
 def detect_nos(configuration: typing.List[str]) -> NOS:
     """Automatically detect the NOS in the configuration.

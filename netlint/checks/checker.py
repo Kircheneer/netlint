@@ -2,7 +2,7 @@
 import functools
 import typing
 
-from netlint.checks.utils import NOS
+from netlint.checks.utils import NOS, Tag
 
 
 class CheckResult(typing.NamedTuple):
@@ -31,11 +31,16 @@ class Check:
     """
 
     def __init__(
-        self, check_function: CheckFunction, apply_to: typing.List[NOS], name: str
+        self,
+        check_function: CheckFunction,
+        apply_to: typing.List[NOS],
+        name: str,
+        tags: typing.Set[Tag],
     ) -> None:
         self.check_function = check_function
         self.apply_to = apply_to
         self.name = name
+        self.tags = tags
         self.function_doc = check_function.__doc__
 
     def __call__(self, configuration: typing.List[str]) -> typing.Optional[CheckResult]:
@@ -55,7 +60,7 @@ class Checker:
 
     @classmethod
     def register(
-        cls, apply_to: typing.List[NOS], name: str
+        cls, apply_to: typing.List[NOS], name: str, tags: typing.Set[Tag]
     ) -> typing.Callable[
         [typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]],
         Check,
@@ -64,6 +69,7 @@ class Checker:
 
         :param apply_to: List of NOSes to apply the check for.
         :param name: Name of the check.
+        :param tags: A list of check tags that apply to this check.
         """
 
         def decorator(
@@ -73,7 +79,9 @@ class Checker:
             def wrapper(config: typing.List[str]) -> typing.Optional[CheckResult]:
                 return function(config)
 
-            check = Check(check_function=wrapper, apply_to=apply_to, name=name)
+            check = Check(
+                check_function=wrapper, apply_to=apply_to, name=name, tags=tags
+            )
             for nos in apply_to:
                 if nos in cls.checks:
                     cls.checks[nos].append(check)

@@ -17,7 +17,7 @@ def test_lint_basic(plain: bool, format_: str):
 
     cisco_ios_faulty_conf = TESTS_DIR / "configurations" / "cisco_ios" / "faulty.conf"
 
-    commands = [str(cisco_ios_faulty_conf)]
+    commands = ["-i", str(cisco_ios_faulty_conf)]
 
     if plain:
         commands.insert(0, "--plain")
@@ -51,8 +51,56 @@ def test_select_exclude_exclusivity():
     cisco_ios_faulty_conf = TESTS_DIR / "configurations" / "cisco_ios" / "faulty.conf"
 
     result = runner.invoke(
-        cli, [str(cisco_ios_faulty_conf), "--select", "ABC", "--exclude", "XYZ"]
+        cli, ["-i", str(cisco_ios_faulty_conf), "--select", "ABC", "--exclude", "XYZ"]
     )
 
     assert "mutually exclusive" in result.stdout
     assert result.exception
+
+
+def test_config_file_not_found():
+    """Assert an exception is raised for a non-existant config file."""
+    runner = CliRunner()
+
+    result = runner.invoke(cli, ["-c", "non-existent.toml"])
+
+    assert isinstance(result.exception, SystemExit)
+
+
+def test_input_dir():
+    """Test if passing a dictionary for -i works."""
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli, ["-i", str(TESTS_DIR / "configurations"), "--exit-zero"]
+    )
+
+    assert not result.exception, result.exception
+
+
+def test_select_exclude(tmpdir: Path):
+    """Test if the --select/--exclude options works correctly."""
+    runner = CliRunner()
+
+    config_file = tmpdir / "test.conf"
+
+    with open(config_file, "w") as f:
+        f.writelines(["ip http server"])
+
+    commands = ["-i", str(tmpdir), "--exclude", "IOS101", "--exit-zero"]
+
+    result = runner.invoke(cli, commands)
+
+    assert not result.exception
+
+    commands = ["-i", str(tmpdir), "--select", "IOS102", "--exit-zero"]
+
+    result = runner.invoke(cli, commands)
+
+    assert not result.exception
+
+    commands = ["-i", str(tmpdir), "--exclude-tags", "security", "--exit-zero"]
+
+    result = runner.invoke(cli, commands)
+
+    assert not result.exception
