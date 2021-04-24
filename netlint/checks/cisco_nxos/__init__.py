@@ -93,3 +93,21 @@ def check_vpc_feature_enabled_and_used(
             lines=feature_enabled + feature_configured,
         )
     return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS106", tags={Tag.HYGIENE})
+def check_lacp_feature_enabled_and_used(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check if the LACP feature is actually used if it is enabled."""
+    parsed_config = CiscoConfParse(config)
+    feature_enabled = parsed_config.find_lines(r"^feature lacp")
+    feature_configured = parsed_config.find_lines(
+        r"^\s+channel-group \d+ mode active|passive"
+    )
+    if feature_enabled and not feature_configured:
+        return CheckResult(
+            text="LACP feature enabled but never used",
+            lines=feature_enabled + feature_configured,
+        )
+    return None
