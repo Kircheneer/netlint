@@ -6,3 +6,4 @@ dist/
 
 # Editors
 .idea/
+.vscode/
