@@ -46,6 +46,16 @@ Check if any bogus autonomous system is used in the configuration.
 
 * Hygiene
 
+NXOS105
+-------
+
+Check if the vPC feature is actually used, should it be enabled.
+
+**Tags**
+
+
+* Hygiene
+
 VAR101
 ------
 
