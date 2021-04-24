@@ -56,6 +56,16 @@ Check if the vPC feature is actually used, should it be enabled.
 
 * Hygiene
 
+NXOS106
+-------
+
+Check if the LACP feature is actually used, should it be enabled.
+
+**Tags**
+
+
+* Hygiene
+
 VAR101
 ------
 
