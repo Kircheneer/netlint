@@ -77,3 +77,19 @@ def check_bogus_as(config: typing.List[str]) -> typing.Optional[CheckResult]:
         return CheckResult(text="Bogus AS number in use", lines=bad_lines)
     else:
         return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS105", tags={Tag.HYGIENE})
+def check_vpc_feature_enabled_and_used(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check if the vPC feature is actually used if it is enabled."""
+    parsed_config = CiscoConfParse(config)
+    feature_enabled = parsed_config.find_lines(r"^feature vpc")
+    feature_configured = parsed_config.find_lines(r"^vpc domain")
+    if feature_enabled and not feature_configured:
+        return CheckResult(
+            text="vPC feature enabled but never used",
+            lines=feature_enabled + feature_configured,
+        )
+    return None
