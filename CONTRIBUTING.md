@@ -17,6 +17,28 @@ on the code and ensure the documentation builds and the tests pass.
 A `.pre-commit-config.yaml` configuration file is available if you
 want to use git pre-commit hooks.
 
+## Setup
+
+Before you can contribute any code, you will need to set up your
+development environment properly by following the instructions
+below.
+
+1. **Fork Netlint**. In GitHub, fork the Netlint repository to a new
+repository under your name. This will allow you to propose changes
+to the main Netlint repository through a pull request. For more
+information on how to do this, [refer to GitHub's documentation on how to fork a repository](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo).
+2. **Clone Netlint Fork**. Clone your fork of the Netlint repository
+into your development environment. [Refer to GitHub's documentation on how to clone a repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
+3. **Install Poetry**. Netlint utilizes [Poetry](https://python-poetry.org/)
+for Python packaging and dependency management. In order to contribute
+code, you will need to follow [Poetry's installation instructions](https://python-poetry.org/docs/#installation)
+for your operating system of choice.
+4. **Install Dependencies with Poetry**. Use the `poetry install` command
+within the clone of your fork of the Netlint repository to install
+Netlint's dependencies within your development environment.
+
+Your development environment is now set up to contribute to Netlint!
+
 ## Adding new checks
 
 Right now the main thing that is missing is the implementation of
