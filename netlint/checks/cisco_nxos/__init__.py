@@ -11,7 +11,7 @@ __all__ = [
     "check_password_strength",
     "check_bogus_as",
     "check_lacp_feature_enabled_and_used",
-    "check_vpc_feature_enabled_and_used"
+    "check_vpc_feature_enabled_and_used",
 ]
 
 from netlint.checks.constants import bogus_as_numbers
