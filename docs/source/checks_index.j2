@@ -9,3 +9,10 @@ Overview of all configurations checks available by vendor.
    {% for nos in nos_list -%}
    {{ nos|lower }}
    {% endfor %}
+
+
+.. csv-table:: Amount of suported checks
+   :header: {% for nos in checks_per_nos.keys() %}"{{ nos }}"{% if not loop.last %}, {% endif %}{% endfor %}
+   :widths: {% for nos in checks_per_nos.keys() %}15{% if not loop.last %}, {% endif %}{% endfor %}
+
+   {% for amount in checks_per_nos.values() -%}{{ amount }}{% if not loop.last %}, {% endif %}{% endfor %}

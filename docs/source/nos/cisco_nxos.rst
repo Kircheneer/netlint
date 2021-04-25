@@ -49,7 +49,7 @@ Check if any bogus autonomous system is used in the configuration.
 NXOS105
 -------
 
-Check if the vPC feature is actually used, should it be enabled.
+Check if the vPC feature is actually used if it is enabled.
 
 **Tags**
 
@@ -59,7 +59,7 @@ Check if the vPC feature is actually used, should it be enabled.
 NXOS106
 -------
 
-Check if the LACP feature is actually used, should it be enabled.
+Check if the LACP feature is actually used if it is enabled.
 
 **Tags**
 
