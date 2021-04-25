@@ -91,6 +91,16 @@ Check for any ACLs that are configured but never used.
 
 * Hygiene
 
+IOS108
+------
+
+Check if the switchport mode matches all config commands per interface.
+
+**Tags**
+
+
+* Hygiene
+
 VAR101
 ------
 
