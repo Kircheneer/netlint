@@ -75,7 +75,9 @@ def build_checker_docs(app) -> None:
 
     index_template_file = env.get_template("checks_index.j2")
     checks_per_nos = {nos: len(checks) for nos, checks in Checker.checks.items()}
-    rendered_index = index_template_file.render(nos_list=Checker.checks.keys(), checks_per_nos=checks_per_nos)
+    rendered_index = index_template_file.render(
+        nos_list=Checker.checks.keys(), checks_per_nos=checks_per_nos
+    )
     with open(nos_dir / "index.rst", "w") as f:
         f.write(rendered_index)
 
