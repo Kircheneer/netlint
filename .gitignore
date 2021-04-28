@@ -7,3 +7,7 @@ dist/
 # Editors
 .idea/
 .vscode/
+
+# Output
+*.csv
+/*.json

@@ -12,4 +12,4 @@ class JSONOutput(typing_extensions.TypedDict):
 
 
 # Represents all checks on a single configuration.
-JSONOutputDict = typing.Dict[str, JSONOutput]
+JSONOutputDict = typing.Dict[str, typing.Optional[JSONOutput]]

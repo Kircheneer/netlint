@@ -1,3 +1,4 @@
+import csv
 import json
 from pathlib import Path
 
@@ -10,7 +11,7 @@ TESTS_DIR = Path(__file__).parent
 
 
 @pytest.mark.parametrize("plain", [True, False])
-@pytest.mark.parametrize("format_", ["normal", "json"])
+@pytest.mark.parametrize("format_", ["normal", "json", "csv"])
 def test_lint_basic(plain: bool, format_: str):
     """Basic test for CLI linting functionality."""
     runner = CliRunner()
@@ -36,6 +37,9 @@ def test_lint_basic(plain: bool, format_: str):
 
     if format_ == "json":
         result = json.loads(result.output)
+        assert result
+    elif format_ == "csv":
+        result = list(csv.reader(result.output))
         assert result
 
     # Test if the result no longer contains an error with --exit-zero

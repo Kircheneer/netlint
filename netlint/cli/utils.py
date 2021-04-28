@@ -8,15 +8,15 @@ import click
 
 @contextlib.contextmanager
 def smart_open(
-    filename: typing.Optional[str] = None,
+    filename: typing.Optional[str] = None, mode: str = "w", **kwargs: typing.Any
 ) -> typing.Generator[typing.TextIO, None, None]:
     """Return a file handler for filename or sys.stdout if filename is None."""
     if filename and filename != "-":
-        fh = open(filename, "w")
+        fh = open(filename, mode, **kwargs)
     else:
         fh = sys.stdout
     try:
-        yield fh
+        yield fh  # type: ignore
     finally:
         if fh is not sys.stdout:
             fh.close()

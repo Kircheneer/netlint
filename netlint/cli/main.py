@@ -1,5 +1,7 @@
 """CLI entrypoint to netlint."""
+import csv
 import json
+import os
 import typing
 from pathlib import Path
 
@@ -252,7 +254,8 @@ def cli(
             )
         if processed_configs:
             has_errors = True
-        with smart_open(output) as f:
+        newline = "" if format_ == "csv" else os.linesep
+        with smart_open(output, newline=newline) as f:
             if format_ == "normal":
                 for key, value in processed_configs.items():
                     f.write(
@@ -269,6 +272,23 @@ def cli(
                         click.secho("No problems found!", bold=not plain)
             elif format_ == "json":
                 json.dump(processed_configs, f)
+            elif format_ == "csv":
+                writer = csv.writer(f)
+                # Find every unique check that is not filtered
+                all_checks: typing.List[str] = []
+                for checks in ctx.obj["checker"].checks.values():
+                    all_checks.extend(map(lambda c: c.name, checks))
+                sorted_unique_checks = sorted(set(all_checks))
+                writer.writerow(["Device"] + sorted_unique_checks)
+
+                for key, value in processed_configs.items():
+                    row = [key]
+                    row.extend(["Passed"] * len(sorted_unique_checks))
+                    for name, result in value.items():
+                        if result:
+                            index = sorted_unique_checks.index(name)
+                            row[index + 1] = "Failed"
+                    writer.writerow(row)
 
     if not has_errors and not quiet:
         click.secho("No problems found!", bold=not plain)
@@ -322,7 +342,8 @@ def write_output(ctx: click.Context, processed_config: JSONOutputDict) -> None:
     :param processed_config: The Check output dictionary.
     :return: None
     """
-    with smart_open(ctx.obj["output"]) as f:
+    newline = "" if ctx.obj["format"] == "csv" else os.linesep
+    with smart_open(ctx.obj["output"], newline=newline) as f:
         if ctx.obj["format"] == "normal":
             f.write(
                 checks_to_string(
@@ -334,6 +355,16 @@ def write_output(ctx: click.Context, processed_config: JSONOutputDict) -> None:
             )
         elif ctx.obj["format"] == "json":
             json.dump(processed_config, f)
+        elif ctx.obj["format"] == "csv":
+            writer = csv.writer(f)
+            headers = ["Device"]
+            headers.extend(processed_config.keys())
+            writer.writerow(headers)
+            values = ["Test"]  # TODO
+            values.extend(
+                ["Failed" if value else "Passed" for value in processed_config.values()]
+            )
+            writer.writerow(values)
 
 
 def check_config(
@@ -346,11 +377,12 @@ def check_config(
 
     for check, result in results.items():
         if not result:
-            continue
-        return_value[check] = {
-            "text": result.text,
-            "lines": result.lines,
-        }
+            return_value[check] = None
+        else:
+            return_value[check] = {
+                "text": result.text,
+                "lines": result.lines,
+            }
     return return_value
 
 
@@ -360,6 +392,8 @@ def checks_to_string(
     """Convert a check result to its string representation."""
     return_value = ""
     for check, result in check_result_dict.items():
+        if not result:
+            continue
         lines = [line.strip() for line in result["lines"]]
         return_value += style(check, plain, bold=True)
         return_value += " " + result["text"] + "\n"
