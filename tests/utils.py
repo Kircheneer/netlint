@@ -1,7 +1,7 @@
 import typing
 from types import ModuleType
 
-from netlint.checks.checker import CheckFunction
+from netlint.checks.types import CheckFunction
 
 
 def get_method(check: str, module: ModuleType) -> typing.Optional[CheckFunction]:

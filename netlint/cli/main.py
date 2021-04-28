@@ -342,9 +342,9 @@ def check_config(
     """Run checks on config at a given path."""
     return_value: JSONOutputDict = {}
 
-    checker_instance.run_checks(configuration, nos)
+    results = checker_instance.run_checks(configuration, nos)
 
-    for check, result in checker_instance.check_results.items():
+    for check, result in results.items():
         if not result:
             continue
         return_value[check] = {

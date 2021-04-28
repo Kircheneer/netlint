@@ -2,26 +2,10 @@
 import functools
 import typing
 
+from ciscoconfparse import CiscoConfParse
+
+from netlint.checks.types import CheckResult, CheckFunction
 from netlint.checks.utils import NOS, Tag
-
-
-class CheckResult(typing.NamedTuple):
-    """Result of a single check."""
-
-    text: str
-    lines: typing.List[str]
-
-
-# Signature of a check function taking in a list of strings (the configuration)
-# and returning a CheckResult.
-CheckFunction = typing.Callable[[typing.List[str]], typing.Optional[CheckResult]]
-
-
-class CheckFunctionTuple(typing.NamedTuple):
-    """Represent check functions along with any metadata."""
-
-    name: str
-    function: CheckFunction
 
 
 class Check:
@@ -55,8 +39,7 @@ class Checker:
     checks: typing.Dict[NOS, typing.List[Check]] = {}
 
     def __init__(self) -> None:
-        # Map check name to check result (NOS-agnostic)
-        self.check_results: typing.Dict[str, typing.Optional[CheckResult]] = {}
+        pass
 
     @classmethod
     def register(
@@ -91,14 +74,20 @@ class Checker:
 
         return decorator
 
-    def run_checks(self, configuration: typing.List[str], nos: NOS) -> bool:
+    def run_checks(
+        self, configuration: typing.List[str], nos: NOS
+    ) -> typing.Dict[str, typing.Optional[CheckResult]]:
         """
         Run all the registered checks on the configuration.
 
         :param configuration: The configuration to check.
         :param nos: The NOS the configuration is for.
-        :return: True if all checks succeed, False otherwise.
+        :return: The check results.
         """
+        output = {}
+        # Convert configuration to CiscoConfParse object if applicable.
+        if nos in [NOS.CISCO_IOS, NOS.CISCO_NXOS]:
+            configuration = CiscoConfParse(configuration)
         for check in self.checks[nos]:
-            self.check_results[check.name] = check(configuration)
-        return not any(self.check_results.values())
+            output[check.name] = check(configuration)
+        return output

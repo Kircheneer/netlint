@@ -3,7 +3,8 @@ import typing
 
 from ciscoconfparse import CiscoConfParse
 
-from netlint.checks.checker import CheckResult, Checker
+from netlint.checks.checker import Checker
+from netlint.checks.types import CheckResult
 
 from netlint.checks.utils import (
     NOS,
@@ -19,11 +20,10 @@ __all__ = [
     apply_to=[NOS.CISCO_IOS, NOS.CISCO_NXOS], name="VAR101", tags={Tag.SECURITY}
 )
 def check_default_snmp_communities(
-    config: typing.List[str],
+    config: CiscoConfParse,
 ) -> typing.Optional[CheckResult]:
     """Check for presence of default SNMP community strings."""
-    parsed_config = CiscoConfParse(config)
-    snmp_communities = parsed_config.find_lines("^snmp-server community")
+    snmp_communities = config.find_lines("^snmp-server community")
     for community in snmp_communities:
         if community.startswith("snmp-server community public") or community.startswith(
             "snmp-server community private"
