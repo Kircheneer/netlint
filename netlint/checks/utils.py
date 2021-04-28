@@ -1,4 +1,5 @@
 """Configuration checking utitilites."""
+import functools
 import re
 import typing
 from enum import Enum
@@ -6,6 +7,17 @@ from enum import Enum
 from ciscoconfparse import CiscoConfParse
 
 from netlint.checks.constants import acl_regex
+
+
+class NetlintConfParse(CiscoConfParse):
+    """Subclass of CiscoConfParse to implement hashing for use with caches."""
+
+    def __hash__(self) -> int:
+        """Convert the underlying config to a string and hash that."""
+        configuration_as_string = ""
+        for line in self.objs:
+            configuration_as_string += line + "\n"
+        return hash(configuration_as_string)
 
 
 def get_password_hash_algorithm(config_line: str) -> typing.Optional[int]:
@@ -27,8 +39,9 @@ def get_password_hash_algorithm(config_line: str) -> typing.Optional[int]:
         return int(integer[0])
 
 
+@functools.cache
 def get_access_list_usage(
-    config: CiscoConfParse, name: typing.Optional[str] = None
+    config: NetlintConfParse, name: typing.Optional[str] = None
 ) -> typing.List[str]:
     """Return lines that use access lists.
 
@@ -76,7 +89,8 @@ def get_access_list_usage(
     return all_usages
 
 
-def get_access_list_definitions(config: CiscoConfParse) -> typing.List[str]:
+@functools.cache
+def get_access_list_definitions(config: NetlintConfParse) -> typing.List[str]:
     """Return all lines where access lists are defined."""
     # Definitions of extended ACLs
     extended_acls = config.find_lines(acl_regex)
