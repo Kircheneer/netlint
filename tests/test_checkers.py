@@ -2,7 +2,6 @@ import typing
 from pathlib import Path
 
 import pytest
-from ciscoconfparse import CiscoConfParse
 
 from netlint.checks.checker import Checker, Check
 from netlint.checks.utils import NOS
@@ -76,9 +75,8 @@ def test_basic(state: str, check_tuple: typing.List[typing.Tuple[NOS, Check]]):
 
         # The checker is ran right here (through the __call__ function of the
         # Checker instance)
-        if nos in [NOS.CISCO_NXOS, NOS.CISCO_IOS]:
-            configuration_file = CiscoConfParse(configuration_file)
-        result = check_instance(configuration_file)
+        with open(configuration_file) as f:
+            result = check_instance(f.readlines())
         if state == "good":
             assert result is None, f"Failed for {configuration_file.name}"
         elif state == "faulty":

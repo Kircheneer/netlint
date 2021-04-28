@@ -16,7 +16,7 @@ class NetlintConfParse(CiscoConfParse):
         """Convert the underlying config to a string and hash that."""
         configuration_as_string = ""
         for line in self.objs:
-            configuration_as_string += line + "\n"
+            configuration_as_string += line.text + "\n"
         return hash(configuration_as_string)
 
 
@@ -39,7 +39,7 @@ def get_password_hash_algorithm(config_line: str) -> typing.Optional[int]:
         return int(integer[0])
 
 
-@functools.cache
+@functools.lru_cache(maxsize=None)
 def get_access_list_usage(
     config: NetlintConfParse, name: typing.Optional[str] = None
 ) -> typing.List[str]:
@@ -89,7 +89,7 @@ def get_access_list_usage(
     return all_usages
 
 
-@functools.cache
+@functools.lru_cache(maxsize=None)
 def get_access_list_definitions(config: NetlintConfParse) -> typing.List[str]:
     """Return all lines where access lists are defined."""
     # Definitions of extended ACLs
@@ -166,3 +166,9 @@ def get_name_from_acl_definition(acl: str) -> str:
     else:
         _, _, _, name = acl.strip().split(" ", maxsplit=4)
     return name
+
+
+@functools.lru_cache(maxsize=None)
+def parse(configuration: str) -> NetlintConfParse:
+    """Parse a configuration into a NetlintConfParse object."""
+    return NetlintConfParse(configuration.splitlines())

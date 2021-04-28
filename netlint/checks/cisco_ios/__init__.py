@@ -2,8 +2,6 @@
 import re
 import typing
 
-from ciscoconfparse import CiscoConfParse
-
 from netlint.checks import constants as c
 from netlint.checks.checker import Checker
 from netlint.checks.types import CheckResult
@@ -26,12 +24,14 @@ from netlint.checks.utils import (
     get_access_list_usage,
     get_access_list_definitions,
     get_name_from_acl_definition,
+    parse,
 )
 
 
 @Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS101", tags={Tag.SECURITY})
-def check_plaintext_passwords(config: CiscoConfParse) -> typing.Optional[CheckResult]:
+def check_plaintext_passwords(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if there are any plaintext passwords in the configuration."""
+    config = parse("\n".join(config))
     lines = config.find_lines("^username.*password")
     if lines:
         # If `service password-encryption` is configured, users are saved to the
@@ -55,8 +55,9 @@ def check_plaintext_passwords(config: CiscoConfParse) -> typing.Optional[CheckRe
 @Checker.register(
     apply_to=[NOS.CISCO_IOS], name="IOS102", tags={Tag.SECURITY, Tag.OPINIONATED}
 )
-def check_ip_http_server(config: CiscoConfParse) -> typing.Optional[CheckResult]:
+def check_ip_http_server(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the http server is enabled."""
+    config = parse("\n".join(config))
     lines = config.find_lines("^ip http")
     if lines:
         return CheckResult(text="HTTP server not disabled.", lines=lines)
@@ -67,8 +68,9 @@ def check_ip_http_server(config: CiscoConfParse) -> typing.Optional[CheckResult]
 @Checker.register(
     apply_to=[NOS.CISCO_IOS], name="IOS103", tags={Tag.SECURITY, Tag.OPINIONATED}
 )
-def check_console_password(config: CiscoConfParse) -> typing.Optional[CheckResult]:
+def check_console_password(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for authentication on the console line."""
+    config = parse("\n".join(config))
     line_con_config = config.find_all_children("^line con 0")
     if len(line_con_config) == 0:
         return None  # TODO: Log this?
@@ -89,9 +91,10 @@ def check_console_password(config: CiscoConfParse) -> typing.Optional[CheckResul
 
 @Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS104", tags={Tag.SECURITY})
 def check_password_hash_strength(
-    config: CiscoConfParse,
+    config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check if strong password hash algorithms were used."""
+    config = parse("\n".join(config))
     lines_with_passwords = config.find_lines(r"^.*(password|secret)\s\d.*$")
     bad_lines = []
     for line in lines_with_passwords:
@@ -106,9 +109,10 @@ def check_password_hash_strength(
 
 @Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS105", tags={Tag.HYGIENE})
 def check_switchport_trunk_config(
-    config: CiscoConfParse,
+    config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check if the switchport mode matches all config commands per interface."""
+    config = parse("\n".join(config))
     interfaces = config.find_objects_w_child(
         r"^interface", r"^\s+switchport mode trunk"
     )
@@ -137,7 +141,7 @@ def check_switchport_trunk_config(
     tags={Tag.HYGIENE, Tag.SECURITY},
 )
 def check_used_but_unconfigured_access_lists(
-    config: CiscoConfParse,
+    config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check for any ACLs that are used but never configured.
 
@@ -147,6 +151,7 @@ def check_used_but_unconfigured_access_lists(
     * Rate limiting
     * Route maps
     """
+    config = parse("\n".join(config))
     access_list_usages = get_access_list_usage(config)
     access_list_definitions = get_access_list_definitions(config)
     defined_access_lists = []
@@ -179,7 +184,7 @@ def check_used_but_unconfigured_access_lists(
 
 
 @Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS107", tags={Tag.HYGIENE})
-def check_unused_access_lists(config: CiscoConfParse) -> typing.Optional[CheckResult]:
+def check_unused_access_lists(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check for any ACLs that are configured but never used.
 
     Potential usages are:
@@ -188,6 +193,7 @@ def check_unused_access_lists(config: CiscoConfParse) -> typing.Optional[CheckRe
     * Rate limiting
     * Route maps
     """
+    config = parse("\n".join(config))
     access_lists = get_access_list_definitions(config)
     unused_acls = []
     for acl in access_lists:
@@ -203,9 +209,10 @@ def check_unused_access_lists(config: CiscoConfParse) -> typing.Optional[CheckRe
 
 @Checker.register(apply_to=[NOS.CISCO_IOS], name="IOS108", tags={Tag.HYGIENE})
 def check_switchport_access_config(
-    config: CiscoConfParse,
+    config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check if the switchport mode matches all config commands per interface."""
+    config = parse("\n".join(config))
     interfaces = config.find_objects_w_child(
         r"^interface", r"^\s+switchport mode access"
     )

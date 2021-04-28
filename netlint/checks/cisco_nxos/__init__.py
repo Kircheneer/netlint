@@ -1,8 +1,6 @@
 """Checks for the Cisco NXOS NOS."""
 import typing
 
-from ciscoconfparse import CiscoConfParse
-
 from netlint.checks.checker import Checker
 from netlint.checks.types import CheckResult
 
@@ -16,14 +14,15 @@ __all__ = [
 ]
 
 from netlint.checks.constants import bogus_as_numbers
-from netlint.checks.utils import NOS, Tag
+from netlint.checks.utils import NOS, Tag, parse
 
 
 @Checker.register(
     apply_to=[NOS.CISCO_NXOS], name="NXOS101", tags={Tag.SECURITY, Tag.OPINIONATED}
 )
-def check_telnet_enabled(config: CiscoConfParse) -> typing.Optional[CheckResult]:
+def check_telnet_enabled(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the telnet feature is explicitly enabled."""
+    config = parse("\n".join(config))
     lines = config.find_lines("^feature telnet")
     if lines:
         return CheckResult(text="Feature telnet is enabled.", lines=lines)
@@ -33,9 +32,10 @@ def check_telnet_enabled(config: CiscoConfParse) -> typing.Optional[CheckResult]
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS102", tags={Tag.HYGIENE})
 def check_routing_protocol_enabled_and_used(
-    config: CiscoConfParse,
+    config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check if a routing protocol is actually used - should it be enabled."""
+    config = parse("\n".join(config))
     for protocol in ["bgp", "ospf", "eigrp", "rip"]:
         feature_enabled = config.find_lines(f"^feature {protocol}")
         if not feature_enabled:
@@ -53,8 +53,9 @@ def check_routing_protocol_enabled_and_used(
 @Checker.register(
     apply_to=[NOS.CISCO_NXOS], name="NXOS103", tags={Tag.SECURITY, Tag.OPINIONATED}
 )
-def check_password_strength(config: CiscoConfParse) -> typing.Optional[CheckResult]:
+def check_password_strength(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if the password strength check has been disabled."""
+    config = parse("\n".join(config))
     disabled = config.find_lines("^no password strength-check")
     if disabled:
         return CheckResult(text="Password strength-check disabled.", lines=disabled)
@@ -63,8 +64,9 @@ def check_password_strength(config: CiscoConfParse) -> typing.Optional[CheckResu
 
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS104", tags={Tag.HYGIENE})
-def check_bogus_as(config: CiscoConfParse) -> typing.Optional[CheckResult]:
+def check_bogus_as(config: typing.List[str]) -> typing.Optional[CheckResult]:
     """Check if any bogus autonomous system is used in the configuration."""
+    config = parse("\n".join(config))
     bgp_routers = config.find_lines("^router bgp")
     bad_lines = []
     for line in bgp_routers:
@@ -80,9 +82,10 @@ def check_bogus_as(config: CiscoConfParse) -> typing.Optional[CheckResult]:
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS105", tags={Tag.HYGIENE})
 def check_vpc_feature_enabled_and_used(
-    config: CiscoConfParse,
+    config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check if the vPC feature is actually used if it is enabled."""
+    config = parse("\n".join(config))
     feature_enabled = config.find_lines(r"^feature vpc")
     feature_configured = config.find_lines(r"^vpc domain")
     if feature_enabled and not feature_configured:
@@ -95,9 +98,10 @@ def check_vpc_feature_enabled_and_used(
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS106", tags={Tag.HYGIENE})
 def check_lacp_feature_enabled_and_used(
-    config: CiscoConfParse,
+    config: typing.List[str],
 ) -> typing.Optional[CheckResult]:
     """Check if the LACP feature is actually used if it is enabled."""
+    config = parse("\n".join(config))
     feature_enabled = config.find_lines(r"^feature lacp")
     feature_configured = config.find_lines(r"^\s+channel-group \d+ mode active|passive")
     if feature_enabled and not feature_configured:

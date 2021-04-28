@@ -2,8 +2,6 @@
 import functools
 import typing
 
-from ciscoconfparse import CiscoConfParse
-
 from netlint.checks.types import CheckResult, CheckFunction
 from netlint.checks.utils import NOS, Tag
 
@@ -85,9 +83,6 @@ class Checker:
         :return: The check results.
         """
         output = {}
-        # Convert configuration to CiscoConfParse object if applicable.
-        if nos in [NOS.CISCO_IOS, NOS.CISCO_NXOS]:
-            configuration = CiscoConfParse(configuration)
         for check in self.checks[nos]:
             output[check.name] = check(configuration)
         return output
