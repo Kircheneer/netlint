@@ -110,3 +110,19 @@ def check_lacp_feature_enabled_and_used(
             lines=feature_enabled + feature_configured,
         )
     return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS107", tags={Tag.HYGIENE})
+def check_fex_feature_set_installed_but_not_enabled(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check if the fex feature-set is installed but not enabled."""
+    config = parse("\n".join(config))
+    feature_installed = config.find_lines(r"^install feature-set fex")
+    feature_enabled = config.find_lines(r"^feature-set fex")
+    if feature_installed and not feature_enabled:
+        return CheckResult(
+            text="Feature-set fex installed but not enabled.",
+            lines=feature_installed + feature_enabled,
+        )
+    return None
