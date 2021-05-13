@@ -11,6 +11,8 @@ __all__ = [
     "check_bogus_as",
     "check_lacp_feature_enabled_and_used",
     "check_vpc_feature_enabled_and_used",
+    "check_fex_feature_set_installed_but_not_enabled",
+    "check_switchport_mode_fex_fabric",
 ]
 
 from netlint.checks.constants import bogus_as_numbers
@@ -126,3 +128,65 @@ def check_fex_feature_set_installed_but_not_enabled(
             lines=feature_installed + feature_enabled,
         )
     return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS108", tags={Tag.HYGIENE})
+def check_switchport_mode_fex_fabric(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check if any interface in switchport mode fex-fabric has a fex-id associated."""
+    config = parse("\n".join(config))
+    interfaces = config.find_objects_w_child("^interface", "switchport mode fex-fabric")
+    faulty_lines = []
+    for interface in interfaces:
+        current_lines = [interface.text]
+        for line in interface.children:
+            current_lines.append(line.text)
+            if line.text.strip().startswith("fex associate"):
+                break
+        else:
+            faulty_lines.extend(current_lines)
+    if faulty_lines:
+        return CheckResult(
+            text="Interface in switchport mode fex-fabric without associated fex.",
+            lines=faulty_lines,
+        )
+    else:
+        return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS109", tags={Tag.HYGIENE})
+def check_fex_feature_enabled_and_used(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check whether an enabled fex feature is actually used."""
+    config = parse("\n".join(config))
+    feature_enabled = config.find_lines(r"^feature-set fex")
+    feature_configured = config.find_lines(r"^fex id")
+    if feature_enabled and not feature_configured:
+        return CheckResult(
+            text="Fex feature enabled but never used.",
+            lines=feature_enabled + feature_configured,
+        )
+    return None
+
+
+@Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS110", tags={Tag.HYGIENE})
+def check_fex_without_interface(
+    config: typing.List[str],
+) -> typing.Optional[CheckResult]:
+    """Check whether every configured fex id also has an associated interface."""
+    config = parse("\n".join(config))
+    configured_fex_ids = config.find_lines(r"^fex id")
+    faulty_fex_ids = []
+    for line in configured_fex_ids:
+        fex_id = line.split()[2]
+        has_interface = config.find_lines(r"^\s+fex associate {}".format(fex_id))
+        if not has_interface:
+            faulty_fex_ids.append(line)
+    if faulty_fex_ids:
+        return CheckResult(
+            text="FEX without associated interface configured.", lines=faulty_fex_ids
+        )
+    else:
+        return None
