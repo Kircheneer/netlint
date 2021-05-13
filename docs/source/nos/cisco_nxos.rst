@@ -66,6 +66,46 @@ Check if the LACP feature is actually used if it is enabled.
 
 * Hygiene
 
+NXOS107
+-------
+
+Check if the fex feature-set is installed but not enabled.
+
+**Tags**
+
+
+* Hygiene
+
+NXOS108
+-------
+
+Check if any interface in switchport mode fex-fabric has a fex-id associated.
+
+**Tags**
+
+
+* Hygiene
+
+NXOS109
+-------
+
+Check whether an enabled fex feature is actually used.
+
+**Tags**
+
+
+* Hygiene
+
+NXOS110
+-------
+
+Check whether every configured fex id also has an associated interface.
+
+**Tags**
+
+
+* Hygiene
+
 VAR101
 ------
 

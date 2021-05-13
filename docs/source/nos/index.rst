@@ -15,4 +15,4 @@ Overview of all configurations checks available by vendor.
    :header: "CISCO_IOS", "CISCO_NXOS"
    :widths: 15, 15
 
-   9, 7
+   9, 11
