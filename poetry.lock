@@ -450,7 +450,7 @@ python-versions = "*"
 
 [[package]]
 name = "napalm"
-version = "3.2.0"
+version = "3.3.0"
 description = "Network Automation and Programmability Abstraction Layer with Multivendor support"
 category = "main"
 optional = false
@@ -463,6 +463,7 @@ future = "*"
 jinja2 = "*"
 junos-eznc = ">=2.2.1"
 lxml = ">=4.3.0"
+ncclient = "*"
 netaddr = "*"
 netmiko = ">=3.1.0"
 paramiko = ">=2.6.0"
@@ -1461,8 +1462,8 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
 napalm = [
-    {file = "napalm-3.2.0-py2.py3-none-any.whl", hash = "sha256:6ab07a8a360150198b3c33c2fa4e92a9658cda9821736d24f2399343425d2af3"},
-    {file = "napalm-3.2.0.tar.gz", hash = "sha256:6e69a505f5d4a678c42f048d13153afabf10b7fec72868e3bfb53ff4089206fc"},
+    {file = "napalm-3.3.0-py2.py3-none-any.whl", hash = "sha256:7708036fd17a38711643b8911c942b4bb3b59556e2806d31c4392605e2b7aa35"},
+    {file = "napalm-3.3.0.tar.gz", hash = "sha256:0ac7901105fed5f67b1b6e498b0b2b008f77b72c9c1ef323059a97125753138b"},
 ]
 ncclient = [
     {file = "ncclient-0.6.10.tar.gz", hash = "sha256:67b1eba5a6c7c6075746d8c33d4e8f4ded17604034c1fcd1c78996ef52bf66ff"},
