@@ -2,6 +2,7 @@
 import typing
 
 from netlint.checks.checker import Checker
+from netlint.checks.cisco_nxos.utils import _feature_enabled_but_not_configured
 from netlint.checks.types import CheckResult
 
 __all__ = [
@@ -88,14 +89,9 @@ def check_vpc_feature_enabled_and_used(
 ) -> typing.Optional[CheckResult]:
     """Check if the vPC feature is actually used if it is enabled."""
     config = parse("\n".join(config))
-    feature_enabled = config.find_lines(r"^feature vpc")
-    feature_configured = config.find_lines(r"^vpc domain")
-    if feature_enabled and not feature_configured:
-        return CheckResult(
-            text="vPC feature enabled but never used",
-            lines=feature_enabled + feature_configured,
-        )
-    return None
+    return _feature_enabled_but_not_configured(
+        config, r"^feature vpc", r"^vpc domain", "vPC feature enabled but never used"
+    )
 
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS106", tags={Tag.HYGIENE})
@@ -104,14 +100,12 @@ def check_lacp_feature_enabled_and_used(
 ) -> typing.Optional[CheckResult]:
     """Check if the LACP feature is actually used if it is enabled."""
     config = parse("\n".join(config))
-    feature_enabled = config.find_lines(r"^feature lacp")
-    feature_configured = config.find_lines(r"^\s+channel-group \d+ mode active|passive")
-    if feature_enabled and not feature_configured:
-        return CheckResult(
-            text="LACP feature enabled but never used",
-            lines=feature_enabled + feature_configured,
-        )
-    return None
+    return _feature_enabled_but_not_configured(
+        config,
+        r"^feature lacp",
+        r"^\s+channel-group \d+ mode active|passive",
+        "LACP feature enabled but never used",
+    )
 
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS107", tags={Tag.HYGIENE})
@@ -120,14 +114,12 @@ def check_fex_feature_set_installed_but_not_enabled(
 ) -> typing.Optional[CheckResult]:
     """Check if the fex feature-set is installed but not enabled."""
     config = parse("\n".join(config))
-    feature_installed = config.find_lines(r"^install feature-set fex")
-    feature_enabled = config.find_lines(r"^feature-set fex")
-    if feature_installed and not feature_enabled:
-        return CheckResult(
-            text="Feature-set fex installed but not enabled.",
-            lines=feature_installed + feature_enabled,
-        )
-    return None
+    return _feature_enabled_but_not_configured(
+        config,
+        r"^install feature-set fex",
+        r"^feature-set fex",
+        "Feature-set fex installed but not enabled.",
+    )
 
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS108", tags={Tag.HYGIENE})
@@ -161,14 +153,12 @@ def check_fex_feature_enabled_and_used(
 ) -> typing.Optional[CheckResult]:
     """Check whether an enabled fex feature is actually used."""
     config = parse("\n".join(config))
-    feature_enabled = config.find_lines(r"^feature-set fex")
-    feature_configured = config.find_lines(r"^fex id")
-    if feature_enabled and not feature_configured:
-        return CheckResult(
-            text="Fex feature enabled but never used.",
-            lines=feature_enabled + feature_configured,
-        )
-    return None
+    return _feature_enabled_but_not_configured(
+        config,
+        r"^feature-set fex",
+        r"^fex id",
+        "Feature-set fex enabled but never used.",
+    )
 
 
 @Checker.register(apply_to=[NOS.CISCO_NXOS], name="NXOS110", tags={Tag.HYGIENE})
