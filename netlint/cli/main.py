@@ -178,6 +178,7 @@ def cli(
     ctx.obj["prefix"] = prefix
     ctx.obj["output"] = output
     ctx.obj["format"] = format_
+    ctx.obj["input_path"] = input_path
     ctx.obj["checker"] = Checker()
     ctx.obj["console"] = Console()
 
@@ -360,7 +361,7 @@ def write_output(ctx: click.Context, processed_config: JSONOutputDict) -> None:
             headers = ["Device"]
             headers.extend(processed_config.keys())
             writer.writerow(headers)
-            values = ["Test"]  # TODO
+            values = [ctx.obj["input_path"]]
             values.extend(
                 ["Failed" if value else "Passed" for value in processed_config.values()]
             )
