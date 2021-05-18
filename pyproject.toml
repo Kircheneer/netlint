@@ -25,7 +25,7 @@ include = [
 python = "^3.6.1"
 ciscoconfparse = "^1.5.30"
 click = "^7.1.2"
-sphinx = { version = "^3.5.3", optional = true }
+sphinx = { version = ">=3.5.3,<5.0.0", optional = true }
 sphinx-rtd-theme = { version = "^0.5.2", optional = true }
 m2r2 = {version = "^0.2.7", optional = true }
 sphinx-click = {version = ">=2.7.1,<4.0.0", optional = true }
@@ -40,7 +40,7 @@ black = "^20.8b1"
 flake8 = "^3.9.2"
 pytest = "^6.2.4"
 coverage = "^5.5"
-sphinx = "^3.5.3"
+sphinx = ">=3.5.3,<5.0.0"
 sphinx-rtd-theme = "^0.5.2"
 m2r2 = "^0.2.7"
 sphinx-click = ">=2.7.1,<4.0.0"
