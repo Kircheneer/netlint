@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.requests import Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ app = FastAPI()
 
 this_dir = Path(__file__).parent
 
-templates = Jinja2Templates(directory=this_dir / "templates")
+templates = Jinja2Templates(directory=str(this_dir / "templates"))
 
 
 class Configuration(BaseModel):
@@ -26,7 +26,7 @@ class Configuration(BaseModel):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
+async def root(request: Request) -> Response:
     """Return the web site."""
     return templates.TemplateResponse("base.j2", context={"request": request})
 
