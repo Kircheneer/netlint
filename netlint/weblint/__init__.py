@@ -1,3 +1,4 @@
+"""Webserver component for netlint."""
 import typing
 from pathlib import Path
 
@@ -18,17 +19,21 @@ templates = Jinja2Templates(directory=this_dir / "templates")
 
 
 class Configuration(BaseModel):
+    """The model with which the frontend posts the configuration."""
+
     configuration: str
     nos: str
 
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
+    """Return the web site."""
     return templates.TemplateResponse("base.j2", context={"request": request})
 
 
 @app.post("/check")
 async def check(configuration: Configuration) -> typing.Dict:
+    """Run checks on POSTed configurations."""
     checker = Checker()
     nos = NOS.from_napalm(configuration.nos)
     results = checker.run_checks(configuration.configuration.splitlines(), nos)
