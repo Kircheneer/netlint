@@ -235,7 +235,7 @@ name = "fastapi"
 version = "0.65.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -295,12 +295,12 @@ name = "h11"
 version = "0.12.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [[package]]
 name = "identify"
-version = "2.2.5"
+version = "2.2.6"
 description = "File identification library for Python"
 category = "dev"
 optional = false
@@ -674,7 +674,7 @@ name = "pydantic"
 version = "1.8.2"
 description = "Data validation and settings management using python 3.6 type hinting"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6.1"
 
 [package.dependencies]
@@ -1009,7 +1009,7 @@ name = "starlette"
 version = "0.14.2"
 description = "The little ASGI library that shines."
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.extras]
@@ -1098,7 +1098,7 @@ name = "uvicorn"
 version = "0.13.4"
 description = "The lightning-fast ASGI server."
 category = "main"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -1154,12 +1154,11 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 
 [extras]
 docs = ["sphinx", "sphinx-rtd-theme", "m2r2"]
-web = ["fastapi", "uvicorn", "Jinja2"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "6baaa0261cbcf362d782f3e86402c5a89e9da5de2aba807e55464ce3c7909c4e"
+content-hash = "a7c42bcecec3947f9a3c0e58022e72687a76ecccfc91dae619c9cda693542224"
 
 [metadata.files]
 alabaster = [
@@ -1369,8 +1368,8 @@ h11 = [
     {file = "h11-0.12.0.tar.gz", hash = "sha256:47222cb6067e4a307d535814917cd98fd0a57b6788ce715755fa2b6c28b56042"},
 ]
 identify = [
-    {file = "identify-2.2.5-py2.py3-none-any.whl", hash = "sha256:9c3ab58543c03bd794a1735e4552ef6dec49ec32053278130d525f0982447d47"},
-    {file = "identify-2.2.5.tar.gz", hash = "sha256:bc1705694253763a3160b943316867792ec00ba7a0ee40b46e20aebaf4e0c46a"},
+    {file = "identify-2.2.6-py2.py3-none-any.whl", hash = "sha256:1560bb645b93d5c05c3535c72a4f4884133006423d02c692ac6862a45eb0d521"},
+    {file = "identify-2.2.6.tar.gz", hash = "sha256:01ebbc7af37043806216c7550539210cde4f82451983eb8735a02b3b9d013e40"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
