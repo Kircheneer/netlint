@@ -1,1 +1,1 @@
-web: uvicorn netlint.weblint:app
+web: uvicorn netlint.weblint:app --port 80 --host 0.0.0.0
