@@ -1,1 +1,1 @@
-web: uvicorn netlint.weblint:app --port 80
+web: uvicorn netlint.weblint:app --host=0.0.0.0 --port=${PORT:-5000}
