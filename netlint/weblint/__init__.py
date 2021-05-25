@@ -1,4 +1,5 @@
 """Webserver component for netlint."""
+import random
 import typing
 from pathlib import Path
 
@@ -28,7 +29,14 @@ class Configuration(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request) -> Response:
     """Return the web site."""
-    return templates.TemplateResponse("base.j2", context={"request": request})
+    # Pick a random faulty config from the tests folder
+    config_folder = Path(__file__).parents[2] / "tests" / "configurations" / "cisco_ios"
+    faulty_configs = list(config_folder.glob("*_faulty-*.conf"))
+    with open(random.choice(faulty_configs)) as f:
+        configuration = f.read()
+    return templates.TemplateResponse(
+        "base.j2", context={"request": request, "initial": configuration}
+    )
 
 
 @app.post("/check")

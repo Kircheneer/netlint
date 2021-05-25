@@ -1,103 +1,132 @@
 <html lang="en">
 <head>
     <!-- CSS only -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+            crossorigin="anonymous"></script>
 
-    <title>Some HTML in here</title>
+    <title>Netlint</title>
     <script>
         let timerId;
         const debounce = (func, delay) => {
-          let inDebounce
-          return function() {
-            const context = this
-            const args = arguments
-            clearTimeout(inDebounce)
-            inDebounce = setTimeout(() => func.apply(context, args), delay)
-          }
+            let inDebounce
+            return function () {
+                const context = this
+                const args = arguments
+                clearTimeout(inDebounce)
+                inDebounce = setTimeout(() => func.apply(context, args), delay)
+            }
         }
         window.addEventListener("load", function () {
             let textArea = document.getElementById("config-input");
-            textArea.addEventListener("input", debounce(function() {
+            textArea.addEventListener("input", debounce(function () {
                 update_errors();
             }, 500));
+            let nos_select = document.getElementById("nos-select");
+            nos_select.addEventListener("change", debounce(function () {
+                update_errors();
+            }, 500));
+            update_errors();
         });
+
         async function update_errors() {
-          let response = await fetch("/check", {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-              },
-              body: JSON.stringify(
-                  {
-                      "configuration": document.getElementById("config-input").value,
-                      "nos": document.getElementById("nos-select").value
-                  }
-              )
-          });
-          let json;
-          if (response.ok) {
-              json = await response.json()
-          } else {
-              alert("HTTP-Error: " + response.status)
-          }
-          let output = document.getElementById("output-outer");
-          output.innerHTML = "";
-          if (Object.entries(json).length === 0) {
-              output.innerHTML = "No errors found! &#128640;"
-              return
-          }
-          for (const [key, value] of Object.entries(json)) {
-            if (value === null) {
-              continue;
+            let response = await fetch("/check", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(
+                    {
+                        "configuration": document.getElementById("config-input").value,
+                        "nos": document.getElementById("nos-select").value
+                    }
+                )
+            });
+            let json;
+            if (response.ok) {
+                json = await response.json()
+            } else {
+                alert("HTTP-Error: " + response.status)
             }
-            console.log(key);
-            console.log(value);
-            let div = document.createElement("div")
-            div.class = "accordion-item";
-            div.id = `output-${key}`
-            let heading = document.createElement("h2");
-            heading.setAttribute("class", "accordion-header");
-            heading.setAttribute("id", `output-heading-${key}`);
-            let heading_button = document.createElement("button");
-            heading_button.setAttribute("class", "accordion-button collapsed");
-            heading_button.setAttribute("type", "button");
-            heading_button.setAttribute("data-bs-toggle", "collapse");
-            heading_button.setAttribute("data-bs-target", `#collapse-${key}`);
-            heading_button.innerHTML = `${key} - ${value.text}`;
-            heading_button.setAttribute("aria-expanded", "false");
-            heading_button.setAttribute("aria-controls", `collapse-{i}`);
-            heading.appendChild(heading_button);
-            div.appendChild(heading);
-            let content_div = document.createElement("div");
-            content_div.setAttribute("id", `collapse-${key}`);
-            content_div.setAttribute("class", "accordion-collapse collapse");
-            content_div.setAttribute("aria-labelledby", `output-heading-${key}`);
-            content_div.setAttribute("data-bs-parent", "#output");
-            let content_div_body = document.createElement("div");
-            content_div_body.setAttribute("class", "accordion-body");
-            content_div_body.innerHTML = `<code>${value.lines.join("<br/>")}</code>`;
-            content_div.appendChild(content_div_body);
-            div.appendChild(content_div);
-            output.appendChild(div);
-          }
+            let output = document.getElementById("output-outer");
+            output.innerHTML = "";
+            if (Object.entries(json).length === 0) {
+                output.innerHTML = "No errors found! &#128640;"
+                return
+            }
+            let first = true;
+            for (const [key, value] of Object.entries(json)) {
+                if (value === null) {
+                    continue;
+                }
+                console.log(key);
+                console.log(value);
+                let div = document.createElement("div");
+                div.setAttribute("class", "accordion-item");
+                div.id = `output-${key}`
+                let heading = document.createElement("h2");
+                heading.setAttribute("class", "accordion-header");
+                heading.setAttribute("id", `output-heading-${key}`);
+                let heading_button = document.createElement("button");
+                if (first) {
+                    heading_button.setAttribute("class", "accordion-button");
+                } else {
+                    heading_button.setAttribute("class", "accordion-button collapsed");
+                }
+                heading_button.setAttribute("type", "button");
+                heading_button.setAttribute("data-bs-toggle", "collapse");
+                heading_button.setAttribute("data-bs-target", `#collapse-${key}`);
+                heading_button.innerHTML = `${key} - ${value.text}`;
+                heading_button.setAttribute("aria-expanded", "false");
+                heading_button.setAttribute("aria-controls", `collapse-${key}`);
+                heading.appendChild(heading_button);
+                div.appendChild(heading);
+                let content_div = document.createElement("div");
+                content_div.setAttribute("id", `collapse-${key}`);
+                if (first) {
+                    content_div.setAttribute("class", "accordion-collapse collapse show");
+                    content_div.setAttribute("aria-expanded", "true");
+                } else {
+                    content_div.setAttribute("class", "accordion-collapse collapse");
+                }
+                content_div.setAttribute("aria-labelledby", `output-heading-${key}`);
+                content_div.setAttribute("data-bs-parent", "#output");
+                let content_div_body = document.createElement("div");
+                content_div_body.setAttribute("class", "accordion-body");
+                content_div_body.innerHTML = `<code>${value.lines.join("<br/>")}</code>`;
+                content_div.appendChild(content_div_body);
+                div.appendChild(content_div);
+                output.appendChild(div);
+                first = false;
+            }
         }
     </script>
 </head>
 <body>
-<nav class="navbar navbar-light bg-light">
-  <a class="navbar-brand" href="#">
-    Netlint
-  </a>
-</nav>
-<select class="form-select" aria-label="NOS" id="nos-select">
-  <option selected value="ios">Cisco IOS</option>
-  <option value="nxos">Cisco NXOS</option>
-</select>
-<div class="form-floating">
-  <textarea class="form-control" placeholder="Put your configuration here" id="config-input" style="height: 50vh"></textarea>
-  <label for="config-input">Configuration</label>
+<div class="container">
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                Netlint
+            </a>
+            <span class="navbar-brand ms-0">
+            <select class="form-select" aria-label="NOS" id="nos-select">
+                <option selected value="ios">Cisco IOS</option>
+                <option value="nxos">Cisco NXOS</option>
+            </select>
+            </span>
+        </div>
+    </nav>
+
+    <div class="form-floating">
+        <textarea class="form-control" id="config-input"
+                  style="height: 50vh">{{ initial }}</textarea>
+        <label for="config-input">Configuration</label>
+    </div>
+    <div class="accordion" id="output-outer"></div>
 </div>
-<div class="accordion" id="output-outer"></div>
+
 </body>
 </html>
