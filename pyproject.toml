@@ -33,9 +33,9 @@ typing-extensions = "^3.7.4"
 toml = "^0.10.2"
 napalm = "^3.2.0"
 rich = "^10.1.0"
-fastapi = {version = "^0.65.1", optional = true}
-uvicorn = {version = "^0.13.4", optional = true}
-Jinja2 = {version = "^3.0.1", optional = true}
+fastapi = version = "^0.65.1"
+uvicorn = version = "^0.13.4"
+Jinja2 = version = "^3.0.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.812"
@@ -54,7 +54,6 @@ flake8-docstrings = "^1.6.0"
 # The following section is required to install docs dependencies
 # until RTD fully supports poetry: https://github.com/rtfd/readthedocs.org/issues/4912
 docs = ["sphinx", "sphinx_rtd_theme", "m2r2", "spinx-click"]
-web = ["fastapi", "uvicorn", "jinja2"]
 
 [tool.poetry.scripts]
 netlint = 'netlint.cli.main:cli'
