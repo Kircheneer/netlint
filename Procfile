@@ -1,0 +1,1 @@
+web: poetry run uvicorn netlint.weblint:app
