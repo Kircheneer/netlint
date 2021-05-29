@@ -13,6 +13,9 @@ and apply it to the world of network device configuration files.
 
 Find the latest copy of the documentation [here](https://netlint.readthedocs.io).
 
+Try out the web version [here](https://netlint.herokuapp.com) (your
+configuration file input is not saved or shared with anyone).
+
 ## Example usage
 
 Below is an example of how to use this based on one of the faulty test
