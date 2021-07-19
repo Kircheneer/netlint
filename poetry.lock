@@ -845,7 +845,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
 [[package]]
 name = "rich"
-version = "10.2.2"
+version = "10.6.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 category = "main"
 optional = false
@@ -1767,8 +1767,8 @@ requests = [
     {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
 ]
 rich = [
-    {file = "rich-10.2.2-py3-none-any.whl", hash = "sha256:203e79c9012f57e0148a2132d0b43fe070a5c213cf080982c186e1d3ae4f8e1d"},
-    {file = "rich-10.2.2.tar.gz", hash = "sha256:17b3f486c38e79cc219d8848974b277ef532a82d12b3ad6eb37bb8c6f22ab5fc"},
+    {file = "rich-10.6.0-py3-none-any.whl", hash = "sha256:d3f72827cd5df13b2ef7f1a97f81ec65548d4fdeb92cef653234f227580bbb2a"},
+    {file = "rich-10.6.0.tar.gz", hash = "sha256:128261b3e2419a4ef9c97066ccc2abbfb49fa7c5e89c3fe4056d00aa5e9c1e65"},
 ]
 scp = [
     {file = "scp-0.13.3-py2.py3-none-any.whl", hash = "sha256:f2fa9fb269ead0f09b4e2ceb47621beb7000c135f272f6b70d3d9d29928d7bf0"},
